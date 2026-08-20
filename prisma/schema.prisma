@@ -1,0 +1,274 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // Neon (production): DATABASE_URL is the *pooled* connection string and
+  // DIRECT_URL is the non-pooled one, so migrations bypass the pooler.
+  // Local dev can leave DIRECT_URL unset (falls back to DATABASE_URL).
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id                      Int              @id @default(autoincrement())
+  firstName               String
+  lastName                String
+  username                String
+  email                   String           @unique
+  password                String
+  role                    String           @default("user")   // "user" | "admin"
+  status                  String           @default("active") // "active" | "suspended"
+  phone                   String?
+  mainBalance             Float            @default(0)
+  investmentBalance       Float            @default(0)
+  totalEarn               Float            @default(0)
+  totalDeposit            Float            @default(0)
+  totalWithdrawals        Float            @default(0)
+  roi                     Float            @default(0)
+  redeemedRoi             Float            @default(0)
+  speedInvest             Float            @default(0)
+  completed               Float            @default(0)
+  interestBalance         Float            @default(0)
+  rewardPoints            Float            @default(0)
+  totalReferrals          Int              @default(0)
+  referredById            Int?
+  privateKeyHash          String?
+  withdrawalCodeHash      String?
+  termsAcceptedAt         DateTime?
+  termsAcceptedIP         String?
+  createdAt               DateTime         @default(now())
+  deposits                Deposit[]
+  investments             Investment[]
+  messages                Message[]
+  priceAlerts             PriceAlert[]
+  notifications           Notification[]
+  referrals               Referral[]       @relation("UserReferrals")
+  referralRewardsReceived ReferralReward[] @relation("ReferredUserRewards")
+  referralRewards         ReferralReward[] @relation("ReferrerRewards")
+  rewardLedger            RewardLedger[]
+  tickets                 Ticket[]
+  transactions            Transaction[]
+  spotOrders              SpotOrder[]
+  holdings                Holding[]
+  referrer                User?            @relation("UserToUserRef", fields: [referredById], references: [id])
+  referredUsers           User[]           @relation("UserToUserRef")
+  withdrawals             Withdrawal[]
+}
+
+model Deposit {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  amount    Float
+  currency  String
+  address   String
+  status    String   @default("Pending")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Investment {
+  id           Int       @id @default(autoincrement())
+  userId       Int
+  planName     String
+  planId       Int
+  roi          Float
+  duration     String
+  durationDays Int
+  amount       Float
+  startDate    DateTime  @default(now())
+  endDate      DateTime?
+  maturityDate DateTime
+  status       String    @default("Active")
+  createdAt    DateTime  @default(now())
+  user         User      @relation(fields: [userId], references: [id])
+}
+
+model Transaction {
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  type           String?
+  amount         Float
+  description    String?
+  status         String   @default("Success")
+  paymentMethod  String?
+  transactionRef String?
+  createdAt      DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id])
+}
+
+model Withdrawal {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  amount    Float
+  address   String?
+  currency  String?
+  status    String   @default("Pending")
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Referral {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  code      String   @unique
+  createdAt DateTime @default(now())
+  user      User     @relation("UserReferrals", fields: [userId], references: [id])
+}
+
+model RewardLedger {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  type        String
+  points      Float
+  description String?
+  refId       Int?
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model Ticket {
+  id        Int       @id @default(autoincrement())
+  subject   String
+  status    String    @default("open")
+  userId    Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  messages  Message[]
+  user      User      @relation(fields: [userId], references: [id])
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  ticketId  Int
+  senderId  Int
+  content   String
+  createdAt DateTime @default(now())
+  sender    User     @relation(fields: [senderId], references: [id])
+  ticket    Ticket   @relation(fields: [ticketId], references: [id])
+}
+
+model ReferralReward {
+  id             Int       @id @default(autoincrement())
+  userId         Int
+  referredUserId Int
+  amount         Float
+  status         String    @default("PENDING")
+  createdAt      DateTime  @default(now())
+  redeemedAt     DateTime?
+  referredUser   User      @relation("ReferredUserRewards", fields: [referredUserId], references: [id])
+  referrer       User      @relation("ReferrerRewards", fields: [userId], references: [id])
+
+  @@index([userId, status])
+  @@index([referredUserId, status])
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  type      String
+  message   String
+  status    String   @default("info")
+  relatedId Int?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+// =============================
+// PRICE ALERT MODEL
+// =============================
+model PriceAlert {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id])
+  asset       String // BTC, ETH, etc.
+  alertType   String // TARGET | VOLATILITY
+  value       Float // Target price or volatility threshold
+  condition   String // ABOVE | BELOW (for TARGET type)
+  active      Boolean   @default(true)
+  triggeredAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([userId, active])
+  @@index([asset, active])
+}
+
+// =============================
+// SPOT / DERIVATIVES TRADING
+// =============================
+// Persisted orders across trade surfaces (spot/margin/futures). Replaces the
+// previous in-memory mock store. Money fields are Float to stay consistent with
+// the rest of the schema (see SECURITY_REMEDIATION.md for the Decimal plan);
+// all math is routed through src/lib/utils/money.ts.
+model SpotOrder {
+  id           String   @id @default(cuid())
+  userId       Int
+  product      String   @default("spot") // spot | margin | futures
+  symbol       String // e.g. BTCUSDT
+  base         String // e.g. BTC
+  quote        String // e.g. USDT
+  side         String // buy | sell
+  type         String // market | limit
+  price        Float? // limit price (null for market)
+  size         Float // base-asset quantity
+  filledPrice  Float? // execution price once filled
+  fee          Float    @default(0)
+  leverage     Int      @default(1)
+  reserved     Float    @default(0) // funds/holding locked for a resting order
+  status       String   @default("pending") // pending | open | filled | cancelled | rejected
+  clientOrderId String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id])
+
+  @@index([userId, status])
+  @@index([userId, symbol])
+  @@index([status, symbol])
+}
+
+// Per-asset spot balances. The quote currency (USDT) is tracked via the user's
+// mainBalance; base assets (BTC, ETH, ...) are tracked here.
+model Holding {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  asset     String // BTC, ETH, SOL, ...
+  amount    Float    @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, asset])
+  @@index([userId])
+}
+
+// =============================
+// ADMIN AUDIT LOG
+// =============================
+// Records privileged admin actions for the Security & Audit view. Stored as
+// flat scalars (no FK) so it survives even if a referenced user is removed.
+model AdminLog {
+  id           Int      @id @default(autoincrement())
+  adminId      Int?
+  adminEmail   String
+  action       String   // e.g. "suspend_user", "approve_withdrawal", "edit_user"
+  targetType   String?  // "user" | "withdrawal" | "deposit" | ...
+  targetId     String?
+  details      String?
+  ip           String?
+  createdAt    DateTime @default(now())
+
+  @@index([adminEmail, createdAt])
+  @@index([action])
+}
+
+model PushSubscription {
+  id        Int      @id @default(autoincrement())
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+}

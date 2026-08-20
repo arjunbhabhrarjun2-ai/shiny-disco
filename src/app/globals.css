@@ -1,0 +1,1349 @@
+@import "tailwindcss";
+
+/* ─── Design Tokens ──────────────────────────────────────────────────── */
+:root {
+  /* Base surface — deeper, warmer midnight for kraken/apexion blend */
+  --color-bg:         #06090F;
+  --color-bg-soft:    #0A0F1A;
+  --color-surface-1:  #0D1320;
+  --color-surface-2:  #121A2A;
+  --color-surface-3:  #17223A;
+  --color-border:     rgba(255, 255, 255, 0.06);
+  --color-border-strong: rgba(255, 255, 255, 0.10);
+  --color-hairline:   rgba(255, 255, 255, 0.04);
+
+  /* Brand / state */
+  --color-blue:       #3B82F6;
+  --color-blue-light: #60A5FA;
+  --color-blue-deep:  #1E3A8A;
+  --color-cyan:       #22D3EE;
+  --color-emerald:    #10B981;
+  --color-rose:       #F43F5E;
+
+  /* Apexion-inspired editorial accents */
+  --color-gold:       #D4AF7F;    /* soft champagne */
+  --color-gold-deep:  #B08A55;    /* warm brass */
+  --color-gold-light: #EBD4AA;    /* light champagne */
+  --color-champagne:  #E8D3B0;
+  --color-sand:       #C8B088;
+
+  /* Kraken-inspired deep accent */
+  --color-violet:     #7C3AED;
+  --color-violet-deep: #4C1D95;
+  --color-ink:        #0B0F1A;
+
+  /* Text */
+  --color-text-primary:   #F5F1EA;   /* warm off-white */
+  --color-text-secondary: #A9B1C0;
+  --color-text-muted:     #6B7280;
+  --color-text-faint:     #4B5566;
+}
+
+@theme inline {
+  --color-background: #06090F;
+  --color-foreground: #F5F1EA;
+  --font-sans: var(--font-geist, system-ui, sans-serif);
+  --font-mono: var(--font-geist, system-ui, sans-serif);
+  --font-serif: var(--font-geist, system-ui, sans-serif);
+}
+
+/* ─── Unified typography: the entire site uses Geist Sans ─────────────── */
+:root {
+  --font-geist-stack: var(--font-geist), system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Remap every legacy font token onto Geist so all existing
+     var(--font-*) references across the app resolve to Geist Sans. */
+  --font-space-grotesk: var(--font-geist-stack);
+  --font-fraunces: var(--font-geist-stack);
+  --font-jetbrains-mono: var(--font-geist-stack);
+  --font-serif-display: var(--font-geist-stack);
+  --font-mono: var(--font-geist-stack);
+  --font-serif: var(--font-geist-stack);
+}
+
+/* ─── Base ───────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-geist, 'Geist', system-ui, -apple-system, sans-serif);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "ss01", "cv11";
+}
+
+/* ─── Typography helpers ─────────────────────────────────────────────── */
+.font-display {
+  font-family: var(--font-geist-stack);
+  letter-spacing: -0.01em;
+}
+
+.font-serif-display {
+  font-family: var(--font-geist-stack);
+  font-optical-sizing: auto;
+  letter-spacing: -0.025em;
+  font-weight: 400;
+}
+
+.font-serif-italic {
+  font-family: var(--font-geist-stack);
+  font-style: normal;
+  font-weight: 300;
+  letter-spacing: -0.015em;
+}
+
+.text-editorial-caps {
+  font-family: var(--font-geist-stack);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.text-editorial-kicker {
+  font-family: var(--font-geist, system-ui, sans-serif);
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: 0.70rem;
+  font-weight: 500;
+  color: var(--color-gold);
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Gradient text ──────────────────────────────────────────────────── */
+.text-gradient {
+  background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 50%, #22D3EE 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.text-gradient-gold {
+  background: linear-gradient(135deg, #EBD4AA 0%, #D4AF7F 45%, #B08A55 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.text-gradient-champagne {
+  background: linear-gradient(180deg, #F5F1EA 0%, #E8D3B0 50%, #B08A55 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.text-gradient-editorial {
+  background: linear-gradient(180deg, #F5F1EA 0%, #A9B1C0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* ─── Accent rule (thin gold line) ───────────────────────────────────── */
+.accent-rule {
+  display: inline-block;
+  width: 2.25rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #D4AF7F, transparent);
+  vertical-align: middle;
+}
+
+.accent-rule-solid {
+  display: inline-block;
+  width: 2.5rem;
+  height: 1px;
+  background: #D4AF7F;
+  vertical-align: middle;
+}
+
+/* ─── Glow utilities ─────────────────────────────────────────────────── */
+.glow-blue {
+  box-shadow: 0 0 24px rgba(59, 130, 246, 0.15), 0 0 48px rgba(59, 130, 246, 0.06);
+}
+
+.glow-blue-sm {
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.2);
+}
+
+.glow-gold {
+  box-shadow: 0 0 28px rgba(212, 175, 127, 0.18), 0 0 56px rgba(212, 175, 127, 0.08);
+}
+
+.glow-gold-sm {
+  box-shadow: 0 0 14px rgba(212, 175, 127, 0.22);
+}
+
+/* ─── Glass card ─────────────────────────────────────────────────────── */
+.glass {
+  background: rgba(13, 19, 32, 0.82);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.glass-soft {
+  background: rgba(10, 15, 26, 0.55);
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* ─── Editorial card (kraken-style flat surface) ─────────────────────── */
+.card-editorial {
+  background: linear-gradient(180deg, rgba(23, 34, 58, 0.4) 0%, rgba(13, 19, 32, 0.6) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 18px;
+  transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-editorial:hover {
+  border-color: rgba(212, 175, 127, 0.22);
+  box-shadow: 0 18px 48px -18px rgba(0, 0, 0, 0.6);
+}
+
+/* ─── Luxe card (apexion-style premium surface with gold frame) ──────── */
+.card-luxe {
+  position: relative;
+  background: linear-gradient(160deg, rgba(23, 34, 58, 0.55) 0%, rgba(11, 15, 26, 0.75) 100%);
+  border: 1px solid rgba(212, 175, 127, 0.14);
+  border-radius: 20px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.card-luxe::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 40% at 50% 0%, rgba(212, 175, 127, 0.08), transparent 70%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ─── Hero background ────────────────────────────────────────────────── */
+.hero-bg {
+  background:
+    radial-gradient(ellipse 80% 50% at 30% 0%, rgba(59, 130, 246, 0.14) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 50% at 80% 20%, rgba(212, 175, 127, 0.08) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 50% 100%, rgba(124, 58, 237, 0.10) 0%, transparent 60%),
+    #06090F;
+}
+
+.hero-bg-editorial {
+  background:
+    radial-gradient(ellipse 100% 60% at 50% 0%, rgba(212, 175, 127, 0.10) 0%, transparent 55%),
+    linear-gradient(180deg, #06090F 0%, #0A0F1A 60%, #06090F 100%);
+}
+
+.section-bg-soft {
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 50%, rgba(59, 130, 246, 0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 50%, rgba(212, 175, 127, 0.04) 0%, transparent 60%),
+    #06090F;
+}
+
+/* ─── Grid mesh ──────────────────────────────────────────────────────── */
+.bg-grid-mesh {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+.bg-grid-editorial {
+  background-image:
+    linear-gradient(rgba(212, 175, 127, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(212, 175, 127, 0.035) 1px, transparent 1px);
+  background-size: 88px 88px;
+}
+
+.bg-noise {
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0.75  0 0 0 0 0.68  0 0 0 0 0.52  0 0 0 0.18 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-size: 160px 160px;
+}
+
+/* ─── Button styles ──────────────────────────────────────────────────── */
+.btn-primary {
+  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.01em;
+  box-shadow: 0 8px 24px -10px rgba(37, 99, 235, 0.55);
+}
+
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -75%;
+  width: 50%;
+  height: 200%;
+  background: rgba(255, 255, 255, 0.12);
+  transform: skewX(-20deg);
+  transition: left 0.6s ease;
+}
+
+.btn-primary:hover::after {
+  left: 125%;
+}
+
+.btn-gold {
+  background: linear-gradient(135deg, #EBD4AA 0%, #D4AF7F 50%, #B08A55 100%);
+  color: #0B0F1A;
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.01em;
+  font-weight: 600;
+  box-shadow: 0 8px 28px -10px rgba(212, 175, 127, 0.5);
+}
+
+.btn-gold::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -75%;
+  width: 50%;
+  height: 200%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: skewX(-20deg);
+  transition: left 0.6s ease;
+}
+
+.btn-gold:hover::after {
+  left: 125%;
+}
+
+.btn-ghost-gold {
+  border: 1px solid rgba(212, 175, 127, 0.4);
+  color: #D4AF7F;
+  background: transparent;
+  transition: all 0.25s ease;
+  letter-spacing: 0.01em;
+}
+
+.btn-ghost-gold:hover {
+  border-color: #D4AF7F;
+  background: rgba(212, 175, 127, 0.08);
+  color: #EBD4AA;
+}
+
+.btn-ghost {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.85);
+  background: transparent;
+  transition: all 0.25s ease;
+}
+
+.btn-ghost:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.04);
+  color: #F5F1EA;
+}
+
+/* ─── Gradient border card ───────────────────────────────────────────── */
+.gradient-border-card {
+  position: relative;
+  isolation: isolate;
+  border-radius: 16px;
+}
+
+.gradient-border-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #3B82F6, #22D3EE, #D4AF7F, #3B82F6);
+  background-size: 300% 300%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.gradient-border-card:hover::before {
+  opacity: 1;
+  animation: gradient-rotate 3s linear infinite;
+}
+
+.gradient-border-gold {
+  position: relative;
+  isolation: isolate;
+  border-radius: 18px;
+}
+
+.gradient-border-gold::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(235, 212, 170, 0.5), rgba(176, 138, 85, 0.2), rgba(235, 212, 170, 0.5));
+  background-size: 200% 200%;
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
+}
+
+.gradient-border-gold:hover::before {
+  opacity: 1;
+  animation: gradient-rotate 3s linear infinite;
+}
+
+@keyframes gradient-rotate {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ─── Subtle pulse ───────────────────────────────────────────────────── */
+@keyframes pulse-gold {
+  0%, 100% { opacity: 0.8; }
+  50%      { opacity: 1; }
+}
+
+.pulse-gold {
+  animation: pulse-gold 2.4s ease-in-out infinite;
+}
+
+@keyframes float-soft {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
+.float-soft {
+  animation: float-soft 5s ease-in-out infinite;
+}
+
+/* ─── Marquee ────────────────────────────────────────────────────────── */
+@keyframes marquee-x {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.marquee-track {
+  animation: marquee-x 40s linear infinite;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #06090F;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 127, 0.22);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 175, 127, 0.4);
+}
+
+/* ─── Focus visible ──────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid #D4AF7F;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  box-shadow: 0 0 0 3px rgba(212, 175, 127, 0.14);
+}
+
+/* ─── Selection ──────────────────────────────────────────────────────── */
+::selection {
+  background: rgba(212, 175, 127, 0.28);
+  color: #F5F1EA;
+}
+
+/* ─── Divider ────────────────────────────────────────────────────────── */
+.divider-hairline {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+}
+
+.divider-gold {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 127, 0.4), transparent);
+}
+
+/* ─── Dashboard spec — Glassmorphism + Neumorphism + Gradient tokens ─── */
+:root {
+  /* Spec gradient palette (Section 5) */
+  --gradient-primary: linear-gradient(135deg, #6366F1 0%, #A855F7 50%, #EC4899 100%);
+  --gradient-success: linear-gradient(90deg, #00FFA3, #00D68F);
+  --gradient-danger:  linear-gradient(90deg, #FF4D4D, #FF1A1A);
+  --gradient-warning: linear-gradient(90deg, #FFB800, #FF8800);
+  --gradient-gold:    linear-gradient(135deg, #FFD700, #FFA500);
+  --gradient-cyan:    linear-gradient(135deg, #06B6D4 0%, #6366F1 100%);
+  --gradient-chart:   linear-gradient(180deg, rgba(99, 102, 241, 0.4) 0%, transparent 100%);
+
+  /* Spec dark surface tokens (Section 6.1) */
+  --bg-base:        #0B0D10;
+  --bg-elevated:    #14161B;
+  --bg-glass:       rgba(255,255,255,0.03);
+  --border-subtle:  rgba(255,255,255,0.06);
+  --border-accent:  rgba(255,255,255,0.12);
+  --text-data-pri:  #F8FAFC;
+  --text-data-sec:  #94A3B8;
+  --text-data-ter:  #64748B;
+}
+
+/* Glassmorphic primitive (Section 5.1) */
+.glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.glass-card--elevated {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.32);
+}
+
+.glass-card--inset {
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+}
+
+/* Neumorphic primitive (Section 5.1) */
+.neu-surface {
+  background: linear-gradient(145deg, #0f1115, #1a1d24);
+  box-shadow:
+    8px 8px 16px #0a0c10,
+    -8px -8px 16px rgba(36, 40, 48, 0.6);
+  border-radius: 12px;
+}
+
+.neu-surface--pressed {
+  background: linear-gradient(145deg, #1a1d24, #0f1115);
+  box-shadow:
+    inset 4px 4px 8px #0a0c10,
+    inset -4px -4px 8px rgba(36, 40, 48, 0.6);
+}
+
+.neu-surface--sm {
+  background: linear-gradient(145deg, #0f1115, #1a1d24);
+  box-shadow:
+    4px 4px 10px #0a0c10,
+    -4px -4px 10px rgba(36, 40, 48, 0.5);
+  border-radius: 10px;
+}
+
+/* Gradient text utility (spec primary purple→pink) */
+.text-gradient-primary {
+  background: linear-gradient(135deg, #6366F1 0%, #A855F7 50%, #EC4899 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.text-gradient-success {
+  background: linear-gradient(90deg, #00FFA3, #00D68F);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.text-gradient-danger {
+  background: linear-gradient(90deg, #FF4D4D, #FF1A1A);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Tier border gradients (Section 6.2) */
+.tier-01-border {
+  background: linear-gradient(135deg, #06B6D4, #3B82F6) border-box;
+}
+
+.tier-02-border {
+  background: linear-gradient(135deg, #A855F7, #EC4899) border-box;
+}
+
+.tier-03-border {
+  background: linear-gradient(135deg, #FFD700, #FFA500) border-box;
+}
+
+/* Ambient orbs for dashboard depth */
+.orb-primary {
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%);
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+.orb-pink {
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(236, 72, 153, 0.10) 0%, transparent 70%);
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+.orb-cyan {
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.10) 0%, transparent 70%);
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+/* Shimmer skeleton (Section 5.5) */
+@keyframes shimmer-sweep {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.shimmer-skeleton {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255,255,255,0.04);
+  border-radius: 8px;
+}
+
+.shimmer-skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+  animation: shimmer-sweep 1.6s ease-in-out infinite;
+}
+
+/* Mobile fallback — disable backdrop-filter on low-power (Section 7.3) */
+@media (max-width: 768px) {
+  @media (prefers-reduced-motion: reduce) {
+    .glass-card,
+    .glass-card--elevated,
+    .glass-card--inset {
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      background: rgba(13, 19, 32, 0.78);
+    }
+  }
+}
+
+/* ─── Reduced motion ─────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ═════════════════════════════════════════════════════════════════════════
+   SPACE-GLOBE VIDEO BACKGROUND — global marketing-page styling
+   The fullscreen <video> + overlay live in <SpaceBackground />. That
+   component sets `data-space="on"` on <body> for marketing routes only
+   (Home, About, Features, Fees, Bonds, Contact, Privacy, Terms, …) and
+   removes it for the user dashboard, sign-in, and sign-up pages.
+   All rules below scope to that flag, so no per-page edits are needed.
+   ───────────────────────────────────────────────────────────────────── */
+
+/* Mobile-friendly viewport unit fallback — uses 100svh on browsers that
+   support it so address bars don't trap content; falls back to vh. */
+:root {
+  --space-vh: 100vh;
+}
+@supports (height: 100svh) {
+  :root { --space-vh: 100svh; }
+}
+@supports (height: 100dvh) {
+  :root { --space-vh: 100dvh; }
+}
+
+/* ── Body & root transparency ────────────────────────────────────────── */
+html,
+body {
+  background: transparent !important;
+}
+
+body[data-space="on"] {
+  /* Smooth touch-scroll on iOS so snap doesn't feel sticky. */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* All direct page content stacks above the overlay (z-index >= 1) */
+body[data-space="on"] > *:not(video):not(script):not(style) {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Neutralise opaque hero / section backgrounds globally ──────────── */
+body[data-space="on"] .hero-bg,
+body[data-space="on"] .hero-bg-editorial,
+body[data-space="on"] .section-bg-soft {
+  background: transparent !important;
+}
+
+/* The home wrapper still has the helper class — keep the legacy hook. */
+.space-page-snap {
+  background: transparent !important;
+}
+
+/* Every section AND every wrapper that hard-codes the dark site background
+   paints transparent so the video shows through. Reaches any depth — the
+   marketing pages wrap content in <div style={{background:'var(--color-bg)'}}>
+   or hard-coded hexes like '#06090F' inside Next.js's layout providers, so
+   we cannot rely on direct-child rules. We also catch the rgb() forms that
+   browsers actually serialize hex colors into (e.g. rgb(6, 9, 15)). */
+body[data-space="on"] section,
+body[data-space="on"] section[class],
+body[data-space="on"] section[style],
+body[data-space="on"] main,
+body[data-space="on"] article,
+/* var(--color-bg) inline */
+body[data-space="on"] [style*="--color-bg"],
+body[data-space="on"] [style*="var(--color-bg)"],
+/* hex literals */
+body[data-space="on"] [style*="#06090F"],
+body[data-space="on"] [style*="#06090f"],
+body[data-space="on"] [style*="#0A0F1A"],
+body[data-space="on"] [style*="#0a0f1a"],
+body[data-space="on"] [style*="#0D1320"],
+body[data-space="on"] [style*="#0d1320"],
+body[data-space="on"] [style*="#0B0F1A"],
+body[data-space="on"] [style*="#0b0f1a"],
+/* rgb() serializations */
+body[data-space="on"] [style*="rgb(6, 9, 15)"],
+body[data-space="on"] [style*="rgb(6,9,15)"],
+body[data-space="on"] [style*="rgb(10, 15, 26)"],
+body[data-space="on"] [style*="rgb(10,15,26)"],
+body[data-space="on"] [style*="rgb(13, 19, 32)"],
+body[data-space="on"] [style*="rgb(13,19,32)"],
+body[data-space="on"] [style*="rgb(11, 15, 26)"],
+body[data-space="on"] [style*="rgb(11,15,26)"],
+/* Generic page wrapper pattern: <div style="min-height: 100vh; background: …">
+   covers any marketing page that uses a fullscreen wrapper, even if it picks
+   a different dark color than the site bg. */
+body[data-space="on"] div[style*="min-height"][style*="background"],
+body[data-space="on"] div[style*="minHeight"][style*="background"] {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* ── Smooth, fluid scrolling (no snap traps) ────────────────────────────
+   Snap-scroll was making transitions feel jarring. We use native smooth
+   scroll plus a generous CSS scroll-padding so anchors don't crash into
+   the navbar. On the home page only, the .space-page-snap wrapper still
+   gets gentle 100vh sections — but with NO scroll-snap, so users can move
+   freely while the video keeps playing underneath.
+   ───────────────────────────────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 88px;
+}
+
+body[data-space="on"] .space-page-snap,
+body[data-space="on"] main,
+html:has(body[data-space="on"]) {
+  scroll-snap-type: none !important;
+}
+
+/* Desktop: home page sections still feel cinematic at 100vh, but content
+   simply scrolls smoothly through them — no locking, no fighting the user. */
+@media (min-width: 768px) and (min-height: 640px) {
+  body[data-space="on"] .space-page-snap > section,
+  body[data-space="on"] .space-page-snap > div > section {
+    min-height: var(--space-vh);
+    scroll-snap-align: none;
+    position: relative;
+    z-index: 1;
+  }
+}
+
+/* Mobile: never trap content at 100vh, generous fluid padding instead. */
+@media (max-width: 767px), (max-height: 639px) {
+  body[data-space="on"] section,
+  body[data-space="on"] .space-page-snap > section,
+  body[data-space="on"] .space-page-snap > div > section {
+    min-height: 0 !important;
+    scroll-snap-align: none !important;
+    padding-top: clamp(2.5rem, 8vw, 4rem);
+    padding-bottom: clamp(2.5rem, 8vw, 4rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+/* ── Smooth load: content fades in once the page is ready ───────────────
+   Catches the layout's initial paint over the video so nothing flashes
+   in jarringly — pairs with the video's own opacity fade-in.
+   ───────────────────────────────────────────────────────────────────── */
+@keyframes spaceFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+body[data-space="on"] main,
+body[data-space="on"] .space-page-snap,
+body[data-space="on"] > nav,
+body[data-space="on"] > header {
+  animation: spaceFadeIn 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Ensure html background never paints over the video during scroll repaints */
+html,
+html:has(body[data-space="on"]) {
+  background: transparent !important;
+}
+
+/* Containment for big sections so offscreen frames don't burn paint cycles
+   while the user scrolls — keeps scroll buttery on lower-end devices. */
+body[data-space="on"] section {
+  contain: layout paint;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   SCROLL REVEALS — FAIL-SAFE
+   IMPORTANT: content must ALWAYS be visible by default. A previous version
+   hid every section child at opacity:0 and relied on a scroll observer to
+   reveal it — when the observer or `animation-timeline` did not fire
+   (mobile, in-app browsers), content stayed permanently invisible/blurred.
+   We now do NOT auto-hide anything. Pages animate via their own
+   framer-motion components and the explicit <ScrollReveal> wrapper, which
+   are self-contained and always settle to a visible state.
+   ───────────────────────────────────────────────────────────────────── */
+
+/* Optional, purely-additive reveal: only an element explicitly opted in
+   with .reveal-on-scroll is animated, and even then it starts visible. */
+@keyframes spaceRiseIn {
+  from { opacity: 0.35; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    body[data-space="on"] .reveal-on-scroll {
+      animation: spaceRiseIn linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 22%;
+    }
+  }
+}
+
+/* Hard guarantee: nothing on a marketing page is ever stuck hidden.
+   Targets every descendant of every section + the page wrapper, so any
+   framer-motion / ScrollReveal element that fails to fire still shows.
+   Transforms (slide/scale) still apply — only opacity/blur are pinned. */
+body[data-space="on"] section,
+body[data-space="on"] section *,
+body[data-space="on"] footer,
+body[data-space="on"] footer *,
+body[data-space="on"] [data-reveal] {
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+/* Interactive lift on every glass / editorial card without rewriting components */
+body[data-space="on"] .card-editorial,
+body[data-space="on"] .card-glass,
+body[data-space="on"] .card-luxe,
+body[data-space="on"] .card-elevated {
+  transition:
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 420ms cubic-bezier(0.22, 1, 0.36, 1) !important;
+  will-change: transform;
+}
+@media (hover: hover) {
+  body[data-space="on"] .card-editorial:hover,
+  body[data-space="on"] .card-glass:hover,
+  body[data-space="on"] .card-luxe:hover,
+  body[data-space="on"] .card-elevated:hover {
+    transform: translateY(-6px);
+    border-color: rgba(0, 229, 255, 0.32) !important;
+    box-shadow:
+      0 0 0 1px rgba(0, 229, 255, 0.14),
+      0 36px 72px -28px rgba(0, 102, 255, 0.45),
+      0 0 80px -16px rgba(0, 229, 255, 0.30) !important;
+  }
+}
+
+/* Honour reduced-motion: kill all of the above animations */
+@media (prefers-reduced-motion: reduce) {
+  body[data-space="on"] section > *,
+  body[data-space="on"] section h1,
+  body[data-space="on"] section h2,
+  body[data-space="on"] section h3,
+  body[data-space="on"] section .grid > * {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+  body[data-space="on"] .card-editorial:hover,
+  body[data-space="on"] .card-glass:hover,
+  body[data-space="on"] .card-luxe:hover {
+    transform: none !important;
+  }
+}
+
+/* ── Card surfaces over the video ───────────────────────────────────── */
+body[data-space="on"] .card-editorial,
+body[data-space="on"] .card-glass,
+body[data-space="on"] .card-elevated,
+body[data-space="on"] .card-luxe,
+body[data-space="on"] .card-glass-strong {
+  background: rgba(8, 12, 22, 0.55) !important;
+  backdrop-filter: blur(14px) saturate(125%);
+  -webkit-backdrop-filter: blur(14px) saturate(125%);
+  border-color: rgba(0, 229, 255, 0.12) !important;
+  box-shadow:
+    0 0 0 1px rgba(0, 102, 255, 0.08),
+    0 24px 60px -28px rgba(0, 102, 255, 0.22) !important;
+}
+
+/* ── Typography legibility over the video ───────────────────────────────
+   Two layers: a soft cosmic glow + a tight black outline drop-shadow that
+   guarantees readable contrast against bright frames of the globe. Font
+   families, sizes, weights, and line-heights are left untouched.
+   ───────────────────────────────────────────────────────────────────── */
+body[data-space="on"] {
+  color: #F5F1EA;
+}
+
+body[data-space="on"] h1,
+body[data-space="on"] h2,
+body[data-space="on"] h3,
+body[data-space="on"] h4,
+body[data-space="on"] h5,
+body[data-space="on"] h6 {
+  color: #FFFFFF;
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.85),
+    0 2px 8px rgba(0, 0, 0, 0.75),
+    0 0 28px rgba(0, 102, 255, 0.30),
+    0 0 60px rgba(0, 229, 255, 0.16);
+}
+
+body[data-space="on"] p,
+body[data-space="on"] li,
+body[data-space="on"] span:not([class*="text-gradient"]):not([class*="badge"]),
+body[data-space="on"] a:not([class*="btn"]) {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85), 0 1px 6px rgba(0, 0, 0, 0.55);
+}
+
+/* Keep gradient/clipped text visible — they can't take a text-shadow. */
+body[data-space="on"] [class*="text-gradient"],
+body[data-space="on"] .font-serif-display,
+body[data-space="on"] .font-serif-italic {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.85))
+          drop-shadow(0 0 18px rgba(0, 102, 255, 0.35));
+}
+
+/* Bump faded greys up so they actually read against the video. */
+body[data-space="on"] [style*="#6B7280"],
+body[data-space="on"] [style*="#A9B1C0"],
+body[data-space="on"] [style*="rgba(169,177,192"] {
+  color: #C9D2E0 !important;
+}
+body[data-space="on"] [style*="#4B5566"] {
+  color: #9AA5B8 !important;
+}
+
+/* ── Glow accent utilities (unchanged hooks for explicit usage) ─────── */
+.space-glow-cyan {
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.85),
+    0 0 18px rgba(0, 229, 255, 0.45),
+    0 0 48px rgba(0, 102, 255, 0.25);
+}
+.space-glow-blue {
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.85),
+    0 0 22px rgba(0, 102, 255, 0.55),
+    0 0 60px rgba(0, 102, 255, 0.30);
+}
+
+/* ── CTAs glow in cosmic blue/cyan ──────────────────────────────────── */
+body[data-space="on"] .btn-gold,
+body[data-space="on"] .btn-primary,
+body[data-space="on"] .btn-ghost-gold {
+  box-shadow:
+    0 0 0 1px rgba(0, 229, 255, 0.20),
+    0 12px 36px -10px rgba(0, 102, 255, 0.45),
+    0 0 60px -12px rgba(0, 229, 255, 0.30) !important;
+}
+body[data-space="on"] .btn-gold:hover,
+body[data-space="on"] .btn-primary:hover,
+body[data-space="on"] .btn-ghost-gold:hover {
+  box-shadow:
+    0 0 0 1px rgba(0, 229, 255, 0.34),
+    0 18px 48px -10px rgba(0, 102, 255, 0.60),
+    0 0 80px -10px rgba(0, 229, 255, 0.45) !important;
+}
+
+/* ── Mobile spacing: keep edge-to-edge content readable on phones ───── */
+@media (max-width: 640px) {
+  body[data-space="on"] section {
+    padding-left: clamp(1rem, 5vw, 1.5rem);
+    padding-right: clamp(1rem, 5vw, 1.5rem);
+  }
+  /* Shrink any over-large hero glows that bloat mobile layout */
+  body[data-space="on"] [style*="filter: blur(80px)"],
+  body[data-space="on"] [style*="filter: blur(90px)"],
+  body[data-space="on"] [style*="filter: blur(70px)"] {
+    opacity: 0.5;
+  }
+  /* Most landing-page hero rows use flex-col already; for the holdouts
+     that are still wider than the viewport, prevent horizontal overflow. */
+  body[data-space="on"] .min-h-screen {
+    min-height: 0 !important;
+  }
+}
+
+/* ── Global mobile overflow & readability guards ────────────────────── */
+@media (max-width: 767px) {
+  html,
+  body[data-space="on"] {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+  body[data-space="on"] img,
+  body[data-space="on"] svg,
+  body[data-space="on"] video {
+    max-width: 100%;
+    height: auto;
+  }
+  /* Pull large absolutely-positioned ambient halos back inside the viewport
+     instead of letting them push horizontal scroll. */
+  body[data-space="on"] .absolute,
+  body[data-space="on"] .pointer-events-none {
+    max-width: 100vw;
+  }
+  /* Give the navbar a usable readable backdrop on phones */
+  body[data-space="on"] nav,
+  body[data-space="on"] header {
+    backdrop-filter: blur(12px) saturate(120%);
+    -webkit-backdrop-filter: blur(12px) saturate(120%);
+    background: rgba(6, 9, 15, 0.55) !important;
+  }
+}
+
+/* Final-pass legibility: any inline style that hard-codes faded muted greys
+   gets nudged to a higher-contrast value when sitting over the video. */
+body[data-space="on"] [class*="text-[#6B7280]"],
+body[data-space="on"] [class*="text-[#A9B1C0]"] {
+  color: #C9D2E0 !important;
+}
+
+/* ── Navbar + dropdown popups: translucent so the cosmic bg shows through ─
+   The Navbar uses inline styles for its bar background (rgba 0.55 / 0.92)
+   and its dropdown panels (rgba 0.97 — too opaque). We override the
+   dropdown popups specifically while keeping the navbar bar legible. */
+body[data-space="on"] nav [style*="rgba(10,14,23"],
+body[data-space="on"] nav [style*="rgba(10, 14, 23"],
+body[data-space="on"] nav [style*="rgba(10,15,26"],
+body[data-space="on"] nav [style*="rgba(10, 15, 26"] {
+  background: rgba(8, 12, 22, 0.65) !important;
+  backdrop-filter: blur(24px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
+  border: 1px solid rgba(0, 229, 255, 0.10) !important;
+  box-shadow:
+    0 0 0 1px rgba(0, 102, 255, 0.06),
+    0 24px 60px -28px rgba(0, 0, 0, 0.65),
+    0 0 80px -10px rgba(0, 102, 255, 0.18) !important;
+}
+
+/* Mobile menu drawer: lighter overlay, video peeks through */
+body[data-space="on"] nav [style*="rgba(10,15,26,0.97)"],
+body[data-space="on"] nav [style*="rgba(10, 15, 26, 0.97)"] {
+  background: rgba(6, 10, 20, 0.78) !important;
+  backdrop-filter: blur(28px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(160%) !important;
+}
+
+/* ═════════════════════════════════════════════════════════════════════════
+   COMPREHENSIVE RESPONSIVE PASS
+   Many pages mix Tailwind utility classes with inline styles, so a
+   per-page audit isn't tractable. The rules below act as a safety net for
+   the entire marketing site (any page where body has data-space="on"):
+   – Cap oversized clamp() typography on narrow screens
+   – Force single-column on multi-column grids that didn't get sm:
+   – Constrain absolutely-positioned ambient halos / parallax glyphs
+   – Make CTA button rows stack and grow full-width on phones
+   – Tighten section padding + safe-area gutters
+   – Rein in fixed-width inline cards
+   ───────────────────────────────────────────────────────────────────── */
+
+/* ── Phones (≤640 px) ──────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  /* Horizontal-scroll guard — applied to html/body ONLY. Capping every
+     descendant (body *) breaks horizontally-scrolling carousels and the
+     live-markets marquee by forcing their flex items to shrink + clip. */
+  html, body {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  /* Most pages use clamp(...) — the upper bound can still be too large for
+     a 360 px device. Cap headline/display sizes at sane mobile maxes. */
+  body h1 {
+    font-size: clamp(2rem, 9vw, 2.6rem) !important;
+    line-height: 1.06 !important;
+    letter-spacing: -0.02em;
+  }
+  body h2 {
+    font-size: clamp(1.6rem, 7vw, 2rem) !important;
+    line-height: 1.1 !important;
+  }
+  body h3 {
+    font-size: clamp(1.15rem, 5vw, 1.4rem) !important;
+    line-height: 1.2 !important;
+  }
+  body p,
+  body li {
+    font-size: 0.95rem !important;
+    line-height: 1.55 !important;
+  }
+  body blockquote {
+    font-size: clamp(1.1rem, 4.5vw, 1.4rem) !important;
+    line-height: 1.3 !important;
+  }
+
+  /* Force flex rows to wrap and stack on phones */
+  body[data-space="on"] section .flex.flex-col.md\:flex-row,
+  body[data-space="on"] section .flex.flex-col.lg\:flex-row,
+  body[data-space="on"] section .flex.flex-col.sm\:flex-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+
+  /* Multi-column grids → single column when there's no `sm:grid-cols-1`
+     fallback already in place. Tailwind's grid-cols-2/3/4 without a
+     responsive prefix bites narrow viewports. */
+  body[data-space="on"] section .grid:not([class*="grid-cols-1"]):not([class*="sm:grid-cols-1"]) {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+  /* Allow explicit 2-col mobile grids (uppercase stat strips, social rows) */
+  body[data-space="on"] section .grid.grid-cols-2:not(.sm\:grid-cols-1) {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.75rem !important;
+  }
+
+  /* Section padding — keep it edge-to-edge with breathing room */
+  body[data-space="on"] section,
+  body[data-space="on"] footer {
+    padding-left: clamp(0.85rem, 4.5vw, 1.25rem) !important;
+    padding-right: clamp(0.85rem, 4.5vw, 1.25rem) !important;
+  }
+
+  /* CTA button rows: stack and full-width — easier tap targets */
+  body[data-space="on"] section .flex.gap-3 > button,
+  body[data-space="on"] section .flex.gap-3 > a > button,
+  body[data-space="on"] section .flex.flex-col.sm\:flex-row > button,
+  body[data-space="on"] section .flex.flex-col.sm\:flex-row > a > button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  /* Constrain absolutely-positioned decorations so they never push scroll */
+  body[data-space="on"] .absolute,
+  body[data-space="on"] .pointer-events-none {
+    max-width: 100vw;
+    max-height: 100vh;
+  }
+
+  /* Hide oversized parallax glyphs on phones (they were already faint;
+     on small screens they crowd content and hurt legibility) */
+  body[data-space="on"] [aria-hidden][class*="font-serif"][style*="clamp"][style*="vw"],
+  body[data-space="on"] [aria-hidden][style*="rgba(212,175,127,0.06)"],
+  body[data-space="on"] [aria-hidden][style*="rgba(0,229,255,0.05)"],
+  body[data-space="on"] [aria-hidden][style*="rgba(0,229,255,0.04)"],
+  body[data-space="on"] [aria-hidden][style*="rgba(0,102,255,0.06)"],
+  body[data-space="on"] [aria-hidden][style*="rgba(167,139,250,0.05)"] {
+    display: none !important;
+  }
+
+  /* Long fixed-width tables / chip rows: enable horizontal scroll inside
+     the section instead of busting the viewport. */
+  body[data-space="on"] table,
+  body[data-space="on"] .whitespace-nowrap {
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    display: block;
+  }
+
+  /* Cards: tighter padding so content fits */
+  body[data-space="on"] .card-editorial,
+  body[data-space="on"] .card-glass,
+  body[data-space="on"] .card-luxe,
+  body[data-space="on"] .card-elevated,
+  body[data-space="on"] [class*="rounded-2xl"][class*="p-7"],
+  body[data-space="on"] [class*="rounded-2xl"][class*="p-8"],
+  body[data-space="on"] [class*="rounded-3xl"][class*="p-10"] {
+    padding: 1.25rem !important;
+  }
+
+  /* Footer link rows stack cleanly */
+  body[data-space="on"] footer .grid {
+    text-align: center !important;
+  }
+
+  /* Disable hover-lift on phones so taps don't feel sticky */
+  body[data-space="on"] .card-editorial:hover,
+  body[data-space="on"] .card-glass:hover,
+  body[data-space="on"] .card-luxe:hover,
+  body[data-space="on"] .card-elevated:hover {
+    transform: none !important;
+  }
+
+  /* Carousel: visible scroll cue on phones */
+  body[data-space="on"] [style*="scroll-snap-type: x mandatory"] {
+    padding-left: 0.5rem !important;
+    padding-right: 1.5rem !important;
+  }
+}
+
+/* ── Tablets (641–1023 px) ─────────────────────────────────────────── */
+@media (min-width: 641px) and (max-width: 1023px) {
+  body[data-space="on"] section {
+    padding-left: clamp(1.25rem, 4vw, 2rem) !important;
+    padding-right: clamp(1.25rem, 4vw, 2rem) !important;
+  }
+  /* Cap any 4-col grid to 2 on tablets if no md: variant set it */
+  body[data-space="on"] section .grid:not([class*="md:grid-cols"]):not([class*="sm:grid-cols"]) {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+/* ── Tiny phones (≤380 px) ─────────────────────────────────────────── */
+@media (max-width: 380px) {
+  body h1 { font-size: 1.85rem !important; }
+  body h2 { font-size: 1.45rem !important; }
+  body[data-space="on"] section {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+  /* Navbar logo on very tight phones — keep it small */
+  nav img[alt="Kandella"] {
+    height: 28px !important;
+  }
+}
+
+/* ── Truly bulletproof: html/body never overflow on any size ──────── */
+html, body {
+  overflow-x: hidden;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   PRELOADER COVERAGE GUARANTEE
+   When the preloader is mounted, lock body scrolling and ensure the
+   curtain visually covers everything underneath, including the fixed
+   video background and any z-index: 9999 elements. The preloader
+   itself uses z-index: 10000.
+   ───────────────────────────────────────────────────────────────────── */
+body:has([aria-busy="true"][aria-label="Loading Kandella"]) {
+  overflow: hidden;
+}
+body:has([aria-busy="true"][aria-label="Loading Kandella"]) > *:not([aria-busy="true"]) {
+  /* Hint to the GPU not to bother rasterising offscreen content */
+  visibility: visible;
+}
+
+/* ═════════════════════════════════════════════════════════════════════════
+   LUXE DASHBOARD (Stitch) — utilities used by /dashboard
+   Ports the glass-surface, gradient-border, neumorphic, and gradient
+   primitives from dashboard_stitch/luxe_dashboard_overview.
+   ───────────────────────────────────────────────────────────────────── */
+.luxe-glass {
+  background: rgba(10, 15, 26, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(212, 175, 127, 0.20);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05);
+}
+.luxe-glass-border {
+  background: rgba(10, 15, 26, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  position: relative;
+}
+.luxe-glass-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(212, 175, 127, 0.4), rgba(219, 39, 119, 0.2), rgba(139, 92, 246, 0.4));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+.luxe-neumorphic {
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+.luxe-neumorphic:active {
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+.luxe-grad-purple-pink {
+  background: linear-gradient(135deg, #8B5CF6 0%, #DB2777 100%);
+}
+.luxe-grad-cyan-blue {
+  background: linear-gradient(135deg, #06B6D4 0%, #3B82F6 100%);
+}
+.luxe-text-gold { color: #D4AF7F; }
+.luxe-bg-gold  { background-color: #D4AF7F; }
+.luxe-ambient-orb {
+  position: fixed;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  filter: blur(120px);
+  z-index: 0;
+  opacity: 0.15;
+  pointer-events: none;
+}
