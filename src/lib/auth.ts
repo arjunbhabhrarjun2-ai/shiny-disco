@@ -4,6 +4,7 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { AppError } from "./errorHandler";
 import logger from "./logger";
+import { prisma } from "./prisma";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
@@ -27,6 +28,23 @@ export interface JWTPayload {
 export interface TokenPair {
   accessToken: string;
   refreshToken: string;
+}
+
+/**
+ * Find a user by email (lowercased) OR username (case-insensitive), so the
+ * login forms accept whichever identifier the user types. The seed admin's
+ * username is "Copenhangen" and email "copenhangen@kandella.net" — both work.
+ */
+export async function findUserByIdentifier(identifier: string) {
+  const trimmed = identifier.trim();
+  return prisma.user.findFirst({
+    where: {
+      OR: [
+        { email: trimmed.toLowerCase() },
+        { username: { equals: trimmed, mode: "insensitive" as const } },
+      ],
+    },
+  });
 }
 
 export interface AccessTokenOnly {

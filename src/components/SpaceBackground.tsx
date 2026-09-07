@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 
 /**
@@ -61,7 +61,6 @@ function SpaceBackground() {
   const pathname = usePathname();
   const active = isMarketingPath(pathname);
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const [ready, setReady] = useState(false);
 
   // Toggle the body attribute synchronously per-route so CSS scoping is
   // accurate immediately after navigation (no flicker of opaque content).
@@ -81,22 +80,19 @@ function SpaceBackground() {
     const v = videoRef.current;
     if (!v) return;
     const tryPlay = () => v.play().catch(() => {});
-    if (v.readyState >= 2) {
-      setReady(true);
-      tryPlay();
-    } else {
-      v.addEventListener("loadeddata", () => {
-        setReady(true);
-        tryPlay();
-      }, { once: true });
-    }
+    if (v.readyState >= 2) tryPlay();
+    else v.addEventListener("loadeddata", tryPlay, { once: true });
   }, [active]);
 
   if (!active) return null;
 
   return (
     <>
-      {/* Fullscreen looping background video */}
+      {/* Fullscreen looping background video. The element is NOT hidden by
+          default (no JS/opacity gating): <video autoplay> itself starts once
+          enough data exists, so the background also plays in zero-JS /
+          slow-hydration situations. Until the first frame arrives the
+          element is transparent and the gradient below shows through. */}
       <video
         ref={videoRef}
         autoPlay
@@ -116,9 +112,6 @@ function SpaceBackground() {
           objectFit: "cover",
           zIndex: -1,
           pointerEvents: "none",
-          opacity: ready ? 1 : 0,
-          transition: "opacity 600ms cubic-bezier(0.22, 1, 0.36, 1)",
-          willChange: "opacity",
         }}
       >
         <source src="/kandella-orb-seamless.mp4" type="video/mp4" />

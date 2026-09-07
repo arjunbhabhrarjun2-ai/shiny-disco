@@ -803,20 +803,23 @@ export default function Sidebar() {
 
       {/* ─── MOBILE BOTTOM TAB BAR ─── */}
       <nav
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around px-1 py-2"
+        id="mobile-tabbar"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around px-1"
         style={{
           background: 'rgba(11, 13, 16, 0.92)',
           backdropFilter: 'blur(20px) saturate(180%)',
           WebkitBackdropFilter: 'blur(20px) saturate(180%)',
           borderTop: `1px solid ${C.border}`,
           boxShadow: '0 -8px 24px rgba(0,0,0,0.45)',
+          paddingTop: '0.5rem',
+          paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom, 0px))',
         }}
       >
         {[
-          { icon: <FaThLarge size={11} />, label: 'Home', path: '/dashboard', accent: GRAD_PRIMARY },
-          { icon: <FaChartLine size={11} />, label: 'Trade', path: '/trade/spot', accent: GRAD_PRIMARY },
-          { icon: <FaSeedling size={11} />, label: 'Earn', path: '/stake', accent: GRAD_CYAN },
-          { icon: <FaWallet size={11} />, label: 'Wallet', path: '/portfolio', accent: GRAD_PRIMARY },
+          { icon: <FaThLarge size={12} />, label: 'Home', path: '/dashboard', accent: GRAD_PRIMARY },
+          { icon: <FaChartLine size={12} />, label: 'Trade', path: '/trade/spot', accent: GRAD_PRIMARY },
+          { icon: <FaSeedling size={12} />, label: 'Earn', path: '/stake', accent: GRAD_CYAN },
+          { icon: <FaWallet size={12} />, label: 'Wallet', path: '/portfolio', accent: GRAD_PRIMARY },
         ].map((item, idx) => {
           const isActive = pathname === item.path;
           return (
@@ -845,8 +848,8 @@ export default function Sidebar() {
                 {item.icon}
               </span>
               <span
-                className="truncate w-full text-center text-[9px] uppercase"
-                style={{ letterSpacing: '0.14em' }}
+                className="truncate w-full text-center text-[10px] uppercase"
+                style={{ letterSpacing: '0.12em' }}
               >
                 {item.label}
               </span>
@@ -865,9 +868,9 @@ export default function Sidebar() {
               border: `1px solid ${C.border}`,
             }}
           >
-            <FaEllipsisH size={11} />
+            <FaEllipsisH size={12} />
           </span>
-          <span className="text-[9px] uppercase" style={{ letterSpacing: '0.14em' }}>
+          <span className="text-[10px] uppercase" style={{ letterSpacing: '0.12em' }}>
             More
           </span>
         </button>
@@ -890,7 +893,7 @@ export default function Sidebar() {
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', stiffness: 400, damping: 35 }}
-              className="md:hidden fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl shadow-2xl pb-6 pt-5 px-5 max-h-[85vh] overflow-y-auto"
+              className="md:hidden fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl shadow-2xl pt-5 px-5 max-h-[85vh] overflow-y-auto"
               style={{
                 background:
                   'linear-gradient(180deg, rgba(11,13,16,0.98) 0%, rgba(8,9,12,1) 100%)',
@@ -898,6 +901,7 @@ export default function Sidebar() {
                 WebkitBackdropFilter: 'blur(24px) saturate(180%)',
                 border: `1px solid ${C.borderAccent}`,
                 borderBottom: 'none',
+                paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom, 0px))',
               }}
             >
               <div className="flex justify-center mb-4">
@@ -907,15 +911,17 @@ export default function Sidebar() {
                 />
               </div>
 
-              <div className="flex justify-between items-center mb-5">
+              {/* Sheet title + close */}
+              <div className="flex items-center justify-between mb-4">
                 <span
-                  className="text-[10px] uppercase font-medium"
-                  style={{ color: C.textSec, letterSpacing: '0.24em' }}
+                  className="text-[11px] uppercase font-bold"
+                  style={{ color: C.textPri, letterSpacing: '0.24em' }}
                 >
-                  All Sections
+                  More
                 </span>
                 <button
                   onClick={() => setMobileMoreOpen(false)}
+                  aria-label="Close menu"
                   className="w-8 h-8 rounded-full flex items-center justify-center"
                   style={{
                     color: C.textSec,
@@ -925,6 +931,215 @@ export default function Sidebar() {
                 >
                   <FaTimes size={11} />
                 </button>
+              </div>
+
+              {/* Account summary — mirrors the desktop sidebar balance card:
+                  Account · Total Balance · Available · Accrued · Deposited ·
+                  Earned, with the Settings + currency toggle. */}
+              <div
+                className="mb-4 p-4 rounded-2xl relative overflow-hidden"
+                style={{
+                  background: 'rgba(255,255,255,0.03)',
+                  backdropFilter: 'blur(20px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                }}
+              >
+                <div
+                  className="absolute -top-12 -right-12 w-36 h-36 rounded-full pointer-events-none"
+                  style={{
+                    background:
+                      'radial-gradient(circle, rgba(168,85,247,0.18) 0%, transparent 70%)',
+                    filter: 'blur(30px)',
+                  }}
+                />
+                <div className="relative">
+                  <div className="flex items-center justify-between mb-3">
+                    <span
+                      className="text-[10px] uppercase font-medium"
+                      style={{ color: C.textSec, letterSpacing: '0.24em' }}
+                    >
+                      Account
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMobileMoreOpen(false);
+                          router.push('/settings');
+                        }}
+                        title="Settings"
+                        className="w-7 h-7 rounded-full flex items-center justify-center"
+                        style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${C.borderAccent}`, color: C.textSec }}
+                      >
+                        <FaCog size={11} />
+                      </button>
+                      <div className="relative">
+                        <button
+                          type="button"
+                          onClick={() => setCurrencyOpen((prev) => !prev)}
+                          className="text-[9px] uppercase px-2 py-1 rounded-full flex items-center gap-1"
+                          style={{
+                            background: 'rgba(0,255,163,0.06)',
+                            border: '1px solid rgba(0,255,163,0.18)',
+                            color: C.green,
+                            letterSpacing: '0.18em',
+                          }}
+                        >
+                          {selectedCurrency}
+                          <FaChevronDown
+                            size={8}
+                            style={{
+                              transform: currencyOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                              transition: 'transform 0.2s',
+                            }}
+                          />
+                        </button>
+                        {currencyOpen && (
+                          <div
+                            className="absolute right-0 mt-1 rounded-lg overflow-hidden z-30"
+                            style={{
+                              background: C.bgElevated,
+                              border: `1px solid ${C.borderAccent}`,
+                              minWidth: 70,
+                            }}
+                          >
+                            {(['USD', 'EUR', 'GBP'] as const).map((currency) => (
+                              <button
+                                key={currency}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedCurrency(currency);
+                                  setCurrencyOpen(false);
+                                }}
+                                className="w-full text-left px-2 py-1.5 text-[10px] uppercase transition-colors"
+                                style={{
+                                  color: selectedCurrency === currency ? C.textPri : C.textSec,
+                                  background:
+                                    selectedCurrency === currency
+                                      ? 'rgba(99,102,241,0.12)'
+                                      : 'transparent',
+                                  letterSpacing: '0.12em',
+                                }}
+                              >
+                                {currency}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {isLoading ? (
+                    <p className="text-xs" style={{ color: C.textSec }}>
+                      Loading…
+                    </p>
+                  ) : (
+                    <>
+                      <p
+                        className="text-[9px] uppercase mb-1"
+                        style={{ color: C.textTer, letterSpacing: '0.2em' }}
+                      >
+                        Total Balance
+                      </p>
+                      <p
+                        className="font-serif-display tabular-nums mb-3"
+                        style={{
+                          background: GRAD_PRIMARY,
+                          WebkitBackgroundClip: 'text',
+                          WebkitTextFillColor: 'transparent',
+                          fontSize: '1.5rem',
+                          lineHeight: 1.1,
+                          letterSpacing: '-0.01em',
+                        }}
+                      >
+                        {currencySymbolMap[selectedCurrency]}
+                        {formatMoney(
+                          convertCurrency(
+                            ((dashboard as any)?.mainBalance || 0) +
+                              ((dashboard as any)?.interestBalance || 0)
+                          )
+                        )}
+                      </p>
+
+                      <div
+                        className="grid grid-cols-2 gap-2 mt-3 pt-3"
+                        style={{ borderTop: `1px solid ${C.border}` }}
+                      >
+                        {[
+                          { label: 'Available', key: 'mainBalance' },
+                          { label: 'Accrued', key: 'interestBalance' },
+                          { label: 'Deposited', key: 'totalDeposit' },
+                          { label: 'Earned', key: 'totalEarn' },
+                        ].map(({ label, key }) => (
+                          <div key={key}>
+                            <p
+                              className="text-[9px] uppercase mb-0.5"
+                              style={{ color: C.textTer, letterSpacing: '0.18em' }}
+                            >
+                              {label}
+                            </p>
+                            <p
+                              className="tabular-nums"
+                              style={{
+                                color: C.textPri,
+                                fontSize: 12,
+                                fontFamily: 'var(--font-jetbrains-mono, monospace)',
+                              }}
+                            >
+                              {currencySymbolMap[selectedCurrency]}
+                              {formatMoney(convertCurrency((dashboard as any)?.[key] || 0))}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Quick actions — Deposit / Withdraw always one tap away */}
+              <div className="grid grid-cols-2 gap-2 mb-4">
+                <button
+                  onClick={() => {
+                    router.push('/addFunds');
+                    setMobileMoreOpen(false);
+                  }}
+                  className="flex items-center justify-center gap-2 px-3 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest active:scale-95 transition-all"
+                  style={{
+                    background: GRAD_PRIMARY,
+                    color: C.textPri,
+                    boxShadow: '0 4px 14px -2px rgba(168,85,247,0.4)',
+                  }}
+                >
+                  <FaPlusCircle size={13} />
+                  Deposit
+                </button>
+                <button
+                  onClick={() => {
+                    router.push('/withdrawal');
+                    setMobileMoreOpen(false);
+                  }}
+                  className="flex items-center justify-center gap-2 px-3 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest active:scale-95 transition-all"
+                  style={{
+                    background: 'rgba(255,255,255,0.04)',
+                    color: C.textSec,
+                    border: `1px solid ${C.borderAccent}`,
+                  }}
+                >
+                  <FaPaperPlane size={12} />
+                  Withdraw
+                </button>
+              </div>
+
+              <div className="mb-3">
+                <span
+                  className="text-[10px] uppercase font-medium"
+                  style={{ color: C.textSec, letterSpacing: '0.24em' }}
+                >
+                  All Sections
+                </span>
               </div>
 
               {/* Flat nav grid — matches the desktop sidebar exactly:
@@ -944,7 +1159,7 @@ export default function Sidebar() {
                         }
                         setMobileMoreOpen(false);
                       }}
-                      className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-xs transition-all text-left"
+                      className="flex items-center gap-2 px-3 py-3 rounded-lg text-xs transition-all text-left"
                       style={{
                         background: isActive
                           ? 'rgba(168,85,247,0.10)'

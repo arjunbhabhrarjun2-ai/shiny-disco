@@ -992,14 +992,14 @@ function SignupInner() {
                       <ul className="space-y-1">
                         <li>
                           Email:{' '}
-                          <a href="mailto:support@cryptotradeprime.io" className="hover:underline" style={{ color: '#D4AF7F' }}>
-                            support@cryptotradeprime.io
+                          <a href="mailto:support@kandella.net" className="hover:underline" style={{ color: '#D4AF7F' }}>
+                            support@kandella.net
                           </a>
                         </li>
                         <li>
                           Website:{' '}
-                          <a href="https://www.cryptotradeprime.io" className="hover:underline" style={{ color: '#D4AF7F' }}>
-                            https://www.cryptotradeprime.io
+                          <a href="https://www.kandella.net" className="hover:underline" style={{ color: '#D4AF7F' }}>
+                            https://www.kandella.net
                           </a>
                         </li>
                       </ul>
@@ -1329,14 +1329,14 @@ function SignupInner() {
                       <ul className="space-y-1">
                         <li>
                           Email:{' '}
-                          <a href="mailto:support@cryptotradeprime.io" className="hover:underline" style={{ color: '#D4AF7F' }}>
-                            support@kandella.io
+                          <a href="mailto:support@kandella.net" className="hover:underline" style={{ color: '#D4AF7F' }}>
+                            support@kandella.net
                           </a>
                         </li>
                         <li>
                           Website:{' '}
-                          <a href="https://www.kandella.io" className="hover:underline" style={{ color: '#D4AF7F' }}>
-                            https://www.kandella.io
+                          <a href="https://www.kandella.net" className="hover:underline" style={{ color: '#D4AF7F' }}>
+                            https://www.kandella.net
                           </a>
                         </li>
                       </ul>

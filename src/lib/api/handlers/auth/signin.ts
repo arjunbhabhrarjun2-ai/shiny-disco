@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcrypt";
-import { AuthService } from "@/lib/auth";
+import { AuthService, findUserByIdentifier } from "@/lib/auth";
 import { apiRateLimit } from "@/lib/apiRateLimit";
 import { randomBytes } from "crypto";
 
@@ -29,10 +29,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Email and password required" }, { status: 400 });
     }
 
-    // Find user by email
-    const user = await prisma.user.findUnique({
-      where: { email: email.toLowerCase() },
-    });
+    // Find user by email or username (login forms accept either).
+    const user = await findUserByIdentifier(email);
 
     if (!user) {
       return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });

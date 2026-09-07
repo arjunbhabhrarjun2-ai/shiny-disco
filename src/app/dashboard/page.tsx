@@ -249,7 +249,7 @@ export default function DashboardPage() {
             {/* Primary Deposit CTA */}
             <button
               onClick={() => router.push('/addFunds')}
-              className="luxe-grad-purple-pink luxe-neumorphic text-white px-4 sm:px-5 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider active:scale-95 transition-all"
+              className="luxe-grad-purple-pink luxe-neumorphic text-white px-4 sm:px-5 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider active:scale-95 transition-all"
             >
               Deposit
             </button>
@@ -263,14 +263,15 @@ export default function DashboardPage() {
             <div className="col-span-12 lg:col-span-8 flex flex-col gap-4">
             {/* ── Portfolio Summary (col-span-8, sub-grid 2:1) ───── */}
             <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Total Equity card */}
+              {/* Total Balance card */}
               <div className="md:col-span-2 luxe-glass-border rounded-xl p-6 sm:p-8 relative overflow-hidden group">
-                <div className="absolute top-4 right-4 opacity-5 pointer-events-none group-hover:scale-110 transition-transform">
+                {/* Decorative watermark — desktop only; on phones it crowds the amount */}
+                <div className="hidden md:block absolute top-4 right-4 opacity-5 pointer-events-none group-hover:scale-110 transition-transform">
                   <FaWallet size={120} style={{ color: '#D4AF7F' }} />
                 </div>
                 <div className="relative">
                   <span className="luxe-text-gold text-[10px] font-extrabold uppercase tracking-[0.2em] block mb-2">
-                    Total Equity
+                    Total Balance
                   </span>
                   <h2 className="text-3xl sm:text-4xl font-black tracking-tight" style={{ color: '#D4AF7F' }}>
                     {fmtCur(totalPortfolioValue)}

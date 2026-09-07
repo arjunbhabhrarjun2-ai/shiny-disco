@@ -218,7 +218,7 @@ export default function TransactionsPage() {
           <div />
           <div className="flex items-center gap-3">
             <button onClick={() => logout()} title="Logout" className="p-1.5" style={{ color: '#94a3b8' }}><FaPowerOff size={13} /></button>
-            <button onClick={() => router.push('/addFunds')} className="luxe-grad-purple-pink luxe-neumorphic text-white px-5 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider">Deposit</button>
+            <button onClick={() => router.push('/addFunds')} className="luxe-grad-purple-pink luxe-neumorphic text-white px-5 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider">Deposit</button>
           </div>
         </header>
 
@@ -234,7 +234,7 @@ export default function TransactionsPage() {
 
             {/* Tabs + Filters */}
             <div className="luxe-glass-border rounded-2xl overflow-hidden mb-8">
-              <div className="flex border-b overflow-x-auto" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+              <div className="flex flex-wrap md:flex-nowrap border-b md:overflow-x-auto" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
                 {([
                   { id: 'transactions', label: 'All Transactions', count: allRows.length },
                   { id: 'open', label: 'Open Orders', count: allRows.filter((r) => r.status === 'Pending' || r.status === 'Partial Fill').length },
@@ -246,7 +246,7 @@ export default function TransactionsPage() {
                     <button
                       key={t.id}
                       onClick={() => setTab(t.id as Tab)}
-                      className="px-6 py-4 text-xs font-mono uppercase tracking-widest flex items-center gap-2 whitespace-nowrap transition-colors"
+                      className="px-4 md:px-6 py-3.5 md:py-4 text-xs font-mono uppercase tracking-widest flex items-center gap-2 whitespace-nowrap transition-colors"
                       style={
                         active
                           ? { color: '#D4AF7F', borderBottom: '2px solid #D4AF7F', background: 'rgba(212,175,127,0.04)' }
@@ -265,7 +265,7 @@ export default function TransactionsPage() {
               {/* Filter row */}
               <div className="p-5 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 items-end">
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-bold uppercase tracking-[0.2em] block" style={{ color: '#D4AF7F' }}>Date Range</label>
+                  <label className="text-[10px] font-bold uppercase tracking-[0.18em] block" style={{ color: '#D4AF7F' }}>Date Range</label>
                   <div className="relative">
                     <input
                       readOnly
@@ -279,13 +279,13 @@ export default function TransactionsPage() {
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-bold uppercase tracking-[0.2em] block" style={{ color: '#D4AF7F' }}>Asset</label>
+                  <label className="text-[10px] font-bold uppercase tracking-[0.18em] block" style={{ color: '#D4AF7F' }}>Asset</label>
                   <select value={assetFilter} onChange={(e) => setAssetFilter(e.target.value)} className="w-full bg-black/40 border text-xs py-2 px-3 rounded focus:outline-none" style={{ borderColor: 'rgba(255,255,255,0.10)', color: '#F5F1EA' }}>
                     {assetOptions.map((o) => <option key={o}>{o}</option>)}
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-bold uppercase tracking-[0.2em] block" style={{ color: '#D4AF7F' }}>Type</label>
+                  <label className="text-[10px] font-bold uppercase tracking-[0.18em] block" style={{ color: '#D4AF7F' }}>Type</label>
                   <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="w-full bg-black/40 border text-xs py-2 px-3 rounded focus:outline-none" style={{ borderColor: 'rgba(255,255,255,0.10)', color: '#F5F1EA' }}>
                     <option>All</option>
                     <option>Deposit</option>
@@ -294,7 +294,7 @@ export default function TransactionsPage() {
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-bold uppercase tracking-[0.2em] block" style={{ color: '#D4AF7F' }}>Status</label>
+                  <label className="text-[10px] font-bold uppercase tracking-[0.18em] block" style={{ color: '#D4AF7F' }}>Status</label>
                   <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="w-full bg-black/40 border text-xs py-2 px-3 rounded focus:outline-none" style={{ borderColor: 'rgba(255,255,255,0.10)', color: '#F5F1EA' }}>
                     <option>All</option>
                     <option>Complete</option>
@@ -326,7 +326,7 @@ export default function TransactionsPage() {
             {/* Data table */}
             <div className="luxe-glass-border rounded-2xl overflow-hidden">
               <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse min-w-[1000px]">
+                <table className="w-full text-left border-collapse min-w-[1000px] stack-table-xl">
                   <thead>
                     <tr style={{ background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                       {['Timestamp', 'Instrument', 'Side', 'Type', 'Amount', 'Fill Progress', 'Notional', 'Status', 'Action'].map((h, i) => (
@@ -337,7 +337,7 @@ export default function TransactionsPage() {
                   <tbody className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
                     {filtered.length === 0 ? (
                       <tr>
-                        <td colSpan={9} className="p-12 text-center text-sm" style={{ color: '#8F9BB3' }}>
+                        <td colSpan={9} data-span="all" className="p-12 text-center text-sm" style={{ color: '#8F9BB3' }}>
                           No transactions match your filters.
                           {allRows.length === 0 && (
                             <span> Try <button onClick={() => router.push('/addFunds')} className="font-bold" style={{ color: '#D4AF7F' }}>making a deposit</button> to get started.</span>
@@ -352,11 +352,11 @@ export default function TransactionsPage() {
                         const status = normalizeStatus(row.rawStatus);
                         return (
                           <tr key={row.id} className="hover:bg-white/[0.03] transition-colors group">
-                            <td className="p-4 font-mono text-[11px]" style={{ color: '#8F9BB3' }}>{ts}</td>
-                            <td className="p-4">
+                            <td className="p-4 font-mono text-[11px]" data-label="Timestamp" style={{ color: '#8F9BB3' }}>{ts}</td>
+                            <td className="p-4" data-label="Instrument" data-span="all">
                               <div className="flex items-center gap-3">
                                 <div
-                                  className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold"
+                                  className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0"
                                   style={{ background: 'rgba(212,175,127,0.18)', border: '1px solid rgba(212,175,127,0.32)', color: '#D4AF7F' }}
                                 >
                                   {row.kind === 'deposit' ? <FaArrowDown size={9} /> : row.kind === 'withdrawal' ? <FaArrowUp size={9} /> : <FaChartLine size={9} />}
@@ -364,12 +364,12 @@ export default function TransactionsPage() {
                                 <span className="font-bold text-sm tracking-tight">{row.instrument}</span>
                               </div>
                             </td>
-                            <td className="p-4">
+                            <td className="p-4" data-label="Side">
                               <span className="font-bold text-xs uppercase tracking-widest" style={{ color: sideColor }}>{row.side}</span>
                             </td>
-                            <td className="p-4 text-xs font-mono uppercase" style={{ color: 'rgba(245,241,234,0.5)' }}>{row.type}</td>
-                            <td className="p-4 font-mono text-xs" style={{ color: '#F5F1EA' }}>{fmt(row.amount)}</td>
-                            <td className="p-4">
+                            <td className="p-4 text-xs font-mono uppercase" data-label="Type" style={{ color: 'rgba(245,241,234,0.5)' }}>{row.type}</td>
+                            <td className="p-4 font-mono text-xs" data-label="Amount" style={{ color: '#F5F1EA' }}>{fmt(row.amount)}</td>
+                            <td className="p-4" data-label="Fill Progress" data-span="all">
                               <div className="w-full max-w-[100px] rounded-full h-1 mb-1.5" style={{ background: 'rgba(255,255,255,0.05)' }}>
                                 <div
                                   className="h-1 rounded-full"
@@ -381,29 +381,29 @@ export default function TransactionsPage() {
                               </div>
                               <span className="text-[10px] font-mono font-medium" style={{ color: 'rgba(245,241,234,0.5)' }}>{row.fillPct.toFixed(2)}%</span>
                             </td>
-                            <td className="p-4 font-mono text-xs" style={{ color: '#F5F1EA' }}>{fmtUsd(row.notional)}</td>
-                            <td className="p-4">
+                            <td className="p-4 font-mono text-xs" data-label="Notional" style={{ color: '#F5F1EA' }}>{fmtUsd(row.notional)}</td>
+                            <td className="p-4" data-label="Status">
                               <span
-                                className="px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest inline-block"
+                                className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest inline-block"
                                 style={{ background: status.bg, color: status.color, border: `1px solid ${status.color}33` }}
                               >
                                 {status.label}
                               </span>
                             </td>
-                            <td className="p-4 text-right">
+                            <td className="p-4 text-right" data-label="Action" data-span="all" data-align="end">
                               {row.status === 'Pending' && row.kind === 'withdrawal' ? (
                                 <button
                                   onClick={() => mutate()}
-                                  className="text-[10px] font-bold uppercase tracking-widest transition-colors hover:text-white"
-                                  style={{ color: '#FF3D71' }}
+                                  className="text-[11px] font-bold uppercase tracking-widest transition-colors hover:text-white px-3 py-2 rounded-lg"
+                                  style={{ color: '#FF3D71', background: 'rgba(255,61,113,0.10)', border: '1px solid rgba(255,61,113,0.3)' }}
                                 >
                                   Cancel
                                 </button>
                               ) : (
                                 <button
                                   onClick={() => router.push(row.kind === 'deposit' ? '/depositHistory' : row.kind === 'withdrawal' ? '/withdrawalHistory' : '/portfolio')}
-                                  className="text-[10px] font-bold uppercase tracking-widest transition-colors hover:text-white"
-                                  style={{ color: 'rgba(245,241,234,0.45)' }}
+                                  className="text-[11px] font-bold uppercase tracking-widest transition-colors hover:text-white px-3 py-2 rounded-lg"
+                                  style={{ color: 'rgba(245,241,234,0.6)', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.10)' }}
                                 >
                                   Details
                                 </button>

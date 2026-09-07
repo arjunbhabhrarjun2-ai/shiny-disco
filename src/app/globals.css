@@ -1347,3 +1347,162 @@ body:has([aria-busy="true"][aria-label="Loading Kandella"]) > *:not([aria-busy="
   opacity: 0.15;
   pointer-events: none;
 }
+
+/* ═════════════════════════════════════════════════════════════════════════
+   MOBILE APP SHELL (Sidebar / dashboard pages)
+   ─────────────────────────────────────────────────────────────────────
+   1. Clearance for the fixed bottom tab bar (<md). Pages that render the
+      Sidebar get an id="mobile-tabbar" bottom nav; body padding keeps the
+      last card/button from ever hiding behind it.
+   2. Stacked card rows for wide data tables on narrow screens instead of
+      an invisible horizontal swipe inside the card.
+   ───────────────────────────────────────────────────────────────────── */
+
+/* Bottom tab-bar clearance — only on pages that actually render the bar */
+@media (max-width: 767px) {
+  body:has(#mobile-tabbar) {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 96px);
+    background: #06090F !important;
+  }
+}
+
+/* Phones (< 768 px): wallet custody / bond tables become stacked cards */
+@media (max-width: 767px) {
+  .stack-table {
+    display: block;
+    width: 100%;
+    min-width: 0 !important;
+    padding: 0;
+  }
+  .stack-table thead {
+    display: none;
+  }
+  .stack-table tbody {
+    display: block;
+    width: 100%;
+  }
+  .stack-table tbody tr {
+    display: grid;
+    grid-auto-flow: dense;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem 1.25rem;
+    margin: 0.5rem 0.75rem;
+    padding: 0.9rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 0.85rem;
+  }
+  .stack-table td {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 0 !important;
+    border: none !important;
+    text-align: left !important;
+    min-width: 0;
+  }
+  .stack-table td::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(212, 175, 127, 0.65);
+    margin-bottom: 0.2rem;
+  }
+  .stack-table td[data-span="all"] {
+    grid-column: 1 / -1;
+  }
+  .stack-table td[data-align="end"] {
+    align-items: flex-end;
+    text-align: right !important;
+  }
+}
+
+/* Phones + small tablets (< 1024 px): wide order-management table → cards */
+@media (max-width: 1023px) {
+  .stack-table-xl {
+    display: block;
+    width: 100%;
+    min-width: 0 !important;
+    padding: 0;
+  }
+  .stack-table-xl thead {
+    display: none;
+  }
+  .stack-table-xl tbody {
+    display: block;
+    width: 100%;
+  }
+  .stack-table-xl tbody tr {
+    display: grid;
+    grid-auto-flow: dense;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem 1.25rem;
+    margin: 0.5rem 0.75rem;
+    padding: 0.9rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 0.85rem;
+  }
+  .stack-table-xl td {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 0 !important;
+    border: none !important;
+    text-align: left !important;
+    min-width: 0;
+  }
+  .stack-table-xl td::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(212, 175, 127, 0.65);
+    margin-bottom: 0.2rem;
+  }
+  .stack-table-xl td[data-span="all"] {
+    grid-column: 1 / -1;
+  }
+  .stack-table-xl td[data-align="end"] {
+    align-items: flex-end;
+    text-align: right !important;
+  }
+}
+
+/* ═════════════════════════════════════════════════════════════════════════
+   JS-BOOT FAILSAFE
+   Server-rendered pages ship framer-motion content at opacity:0 until client
+   JS hydrates and animates it. If JS never runs (old Safari, corrupt/hung
+   chunk over a slow link, hydration crash), the page would stay blank/dark.
+   The <head> script in layout.tsx adds `anim-dead` to <html> ~4.5s after
+   load when hydration hasn't happened; these rules then force everything
+   visible again (except the background video, which stays hidden so the
+   static cosmic gradient shows instead of an empty black frame).
+   ───────────────────────────────────────────────────────────────────── */
+html.anim-dead *,
+html.anim-dead *::before,
+html.anim-dead *::after {
+  opacity: 1 !important;
+  transform: none !important;
+  translate: none !important;
+  visibility: visible !important;
+  filter: none !important;
+  clip-path: none !important;
+}
+
+html.anim-dead [aria-label="Loading Kandella"] {
+  display: none !important;
+}
+
+html.anim-dead body {
+  overflow: auto !important;
+}
+
+

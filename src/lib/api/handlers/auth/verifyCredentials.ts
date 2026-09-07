@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import bcrypt from "bcrypt";
+import { findUserByIdentifier } from "@/lib/auth";
 import { apiRateLimit } from "@/lib/apiRateLimit";
 
 interface VerifyCredentialsRequestBody {
@@ -26,10 +26,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, message: "Email and password required" }, { status: 400 });
     }
 
-    // Find user by email
-    const user = await prisma.user.findUnique({
-      where: { email: email.toLowerCase() },
-    });
+    // Find user by email or username.
+    const user = await findUserByIdentifier(email);
 
     if (!user) {
       return NextResponse.json({ success: false, message: "Invalid email or password" }, { status: 401 });

@@ -17,7 +17,6 @@ import CoinIcon from '@/components/CoinIcon';
 import Sidebar from '@/components/Sidebar';
 import Logo from '@/components/Logo';
 import SwapWidget from '@/components/wallet/SwapWidget';
-import { useCurrency } from '@/components/context/CurrencyContext';
 import {
   FaBitcoin,
   FaEthereum,
@@ -51,7 +50,6 @@ export default function WalletPage() {
   const { quote, holdings } = useHoldings();
   const { tickers } = useTickers();
   const router = useRouter();
-  const { format: fmtCur } = useCurrency(); // selected display currency
 
   useEffect(() => {
     if (!authLoading && !user) router.push('/screens/auth/Signin');
@@ -90,15 +88,10 @@ export default function WalletPage() {
   const activeInv = allInv.filter((i) => (i.status || '').toLowerCase() === 'active');
 
   const availableUsd = (summary.mainBalance || 0) + (summary.interestBalance || 0);
-  const investedUsd = summary.totalInvested || 0;
-  const netWorth = availableUsd + investedUsd;
-  const custodyPct = netWorth > 0 ? (availableUsd / netWorth) * 100 : 0;
-  const selfCustodyPct = 100 - custodyPct;
   // roi is stored as a decimal fraction (0.40 = 40%); normalize to a percent for display.
   const avgApy = activeInv.length > 0
     ? activeInv.reduce((s, i) => { const r = i.roi || 0; return s + (r > 1.5 ? r : r * 100); }, 0) / activeInv.length
     : 0;
-  const totalYield = summary.totalRoiEarned || summary.totalEarned || 0;
 
   // ── Custody assets: every asset the user actually holds (any of the 65+),
   // priced live from tickers (reference price as fallback). USDT cash always shown.
@@ -141,68 +134,43 @@ export default function WalletPage() {
           </div>
           <div className="flex items-center gap-3">
             <button onClick={() => logout()} title="Logout" className="p-1.5" style={{ color: '#94a3b8' }}><FaPowerOff size={13} /></button>
-            <button onClick={() => router.push('/addFunds')} className="luxe-grad-purple-pink luxe-neumorphic text-white px-5 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider">Deposit</button>
+            <button onClick={() => router.push('/addFunds')} className="luxe-grad-purple-pink luxe-neumorphic text-white px-5 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider">Deposit</button>
           </div>
         </header>
 
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 relative">
-          <section className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-            <div className="space-y-2">
-              <p className="text-[10px] uppercase font-bold tracking-[0.15em]" style={{ color: '#D4AF7F' }}>Net Worth</p>
-              <div className="flex items-baseline gap-2"><h2 className="text-2xl sm:text-3xl font-black">{fmtCur(netWorth)}</h2><span className="text-xs font-bold" style={{ color: '#06B6D4' }}>+{avgApy.toFixed(2)}%</span></div>
-              <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
-                <div className="h-full luxe-grad-cyan-blue" style={{ width: `${Math.min(100, custodyPct)}%` }} />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <p className="text-[10px] uppercase font-bold tracking-[0.15em]" style={{ color: 'rgba(245,241,234,0.5)' }}>Custody Balance</p>
-              <h2 className="text-xl sm:text-2xl font-bold" style={{ color: 'rgba(245,241,234,0.9)' }}>{fmtCur(availableUsd)}</h2>
-              <p className="text-[10px] font-bold" style={{ color: 'rgba(212,175,127,0.7)' }}>{custodyPct.toFixed(1)}% ALLOCATION</p>
-            </div>
-            <div className="space-y-2">
-              <p className="text-[10px] uppercase font-bold tracking-[0.15em]" style={{ color: 'rgba(245,241,234,0.5)' }}>Invested</p>
-              <h2 className="text-xl sm:text-2xl font-bold" style={{ color: 'rgba(245,241,234,0.9)' }}>{fmtCur(investedUsd)}</h2>
-              <p className="text-[10px] font-bold" style={{ color: 'rgba(212,175,127,0.7)' }}>{selfCustodyPct.toFixed(1)}% ALLOCATION</p>
-            </div>
-            <div className="space-y-2">
-              <p className="text-[10px] uppercase font-bold tracking-[0.15em]" style={{ color: 'rgba(245,241,234,0.5)' }}>Total Earn PnL</p>
-              <h2 className="text-xl sm:text-2xl font-bold" style={{ color: '#06B6D4' }}>+{fmtCur(totalYield)}</h2>
-              <p className="text-[10px] font-bold" style={{ color: 'rgba(6,182,212,0.7)' }}>{avgApy.toFixed(1)}% AVG. APY</p>
-            </div>
-          </section>
-
           <section className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div className="lg:col-span-7 flex flex-col gap-6">
               <div className="luxe-glass-border rounded-2xl overflow-hidden">
                 <div className="p-5 sm:p-6 flex justify-between items-center" style={{ background: 'rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                   <h3 className="text-base sm:text-lg font-bold flex items-center gap-2.5"><FaLandmark style={{ color: '#D4AF7F' }} />Custody <span className="text-sm font-normal" style={{ color: 'rgba(245,241,234,0.5)' }}>(Trading)</span></h3>
                   <div className="flex gap-2">
-                    <button onClick={() => router.push('/addFunds')} className="luxe-grad-purple-pink text-white text-[10px] font-black px-3 sm:px-4 py-1.5 rounded-lg uppercase tracking-widest hover:opacity-90 active:scale-95 transition-all">Deposit</button>
-                    <button onClick={() => router.push('/withdrawal')} className="bg-transparent text-[10px] font-black px-3 sm:px-4 py-1.5 rounded-lg uppercase tracking-widest hover:bg-[#D4AF7F]/10 active:scale-95 transition-all" style={{ border: '1px solid rgba(212,175,127,0.3)', color: '#D4AF7F' }}>Withdraw</button>
+                    <button onClick={() => router.push('/addFunds')} className="luxe-grad-purple-pink text-white text-[10px] sm:text-[11px] font-black px-3 sm:px-4 py-2 rounded-lg uppercase tracking-widest hover:opacity-90 active:scale-95 transition-all">Deposit</button>
+                    <button onClick={() => router.push('/withdrawal')} className="bg-transparent text-[10px] sm:text-[11px] font-black px-3 sm:px-4 py-2 rounded-lg uppercase tracking-widest hover:bg-[#D4AF7F]/10 active:scale-95 transition-all" style={{ border: '1px solid rgba(212,175,127,0.3)', color: '#D4AF7F' }}>Withdraw</button>
                   </div>
                 </div>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse min-w-[520px]">
+                  <table className="w-full text-left border-collapse min-w-[520px] stack-table">
                     <thead style={{ background: 'rgba(255,255,255,0.04)' }}>
                       <tr>{['Asset', 'Available', 'In-Stake', 'Equity (USD)'].map((h, i) => (<th key={h} className={`p-4 text-[10px] uppercase font-bold tracking-widest ${i > 0 ? 'text-right' : ''}`} style={{ color: 'rgba(212,175,127,0.7)' }}>{h}</th>))}</tr>
                     </thead>
                     <tbody className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
                       {assetRows.length === 0 && (
-                        <tr><td colSpan={4} className="p-8 text-center text-sm" style={{ color: '#8F9BB3' }}>No custody balances yet.</td></tr>
+                        <tr><td colSpan={4} data-span="all" className="p-8 text-center text-sm" style={{ color: '#8F9BB3' }}>No custody balances yet.</td></tr>
                       )}
                       {assetRows.map((row) => {
                         const tint = RATE[row.sym]?.tint || '#D4AF7F';
                         return (
                           <tr key={row.sym} className="hover:bg-[#D4AF7F]/5 transition-colors">
-                            <td className="p-4">
+                            <td className="p-4" data-label="Asset" data-span="all">
                               <div className="flex items-center gap-3">
                                 <CoinIcon symbol={row.sym} size={36} tint={tint} />
                                 <div><p className="font-bold text-sm">{row.sym}</p><p className="text-[10px] uppercase" style={{ color: 'rgba(245,241,234,0.4)' }}>{row.name}</p></div>
                               </div>
                             </td>
-                            <td className="p-4 text-right font-mono text-sm" style={{ color: 'rgba(245,241,234,0.85)' }}>{fmt(row.available, row.sym === 'USDT' ? 2 : 6)}</td>
-                            <td className="p-4 text-right font-mono text-sm" style={{ color: row.inStake > 0 ? '#06B6D4' : 'rgba(245,241,234,0.4)' }}>{fmt(row.inStake, row.sym === 'USDT' ? 2 : 6)}</td>
-                            <td className="p-4 text-right font-mono text-sm font-black" style={{ color: '#D4AF7F' }}>{fmtUsd(row.value)}</td>
+                            <td className="p-4 text-right font-mono text-sm" data-label="Available" style={{ color: 'rgba(245,241,234,0.85)' }}>{fmt(row.available, row.sym === 'USDT' ? 2 : 6)}</td>
+                            <td className="p-4 text-right font-mono text-sm" data-label="In-Stake" style={{ color: row.inStake > 0 ? '#06B6D4' : 'rgba(245,241,234,0.4)' }}>{fmt(row.inStake, row.sym === 'USDT' ? 2 : 6)}</td>
+                            <td className="p-4 text-right font-mono text-sm font-black" data-label="Equity (USD)" data-span="all" data-align="end" style={{ color: '#D4AF7F' }}>{fmtUsd(row.value)}</td>
                           </tr>
                         );
                       })}
@@ -222,7 +190,7 @@ export default function WalletPage() {
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse min-w-[520px]">
+                    <table className="w-full text-left border-collapse min-w-[520px] stack-table">
                       <thead style={{ background: 'rgba(255,255,255,0.04)' }}>
                         <tr>{['Bond', 'Principal', 'ROI', 'Maturity'].map((h, i) => (<th key={h} className={`p-4 text-[10px] uppercase font-bold tracking-widest ${i > 0 ? 'text-right' : ''}`} style={{ color: 'rgba(212,175,127,0.7)' }}>{h}</th>))}</tr>
                       </thead>
@@ -236,10 +204,10 @@ export default function WalletPage() {
                           const term = plan?.duration || `${inv.durationDays || inv.duration} days`;
                           return (
                             <tr key={inv.id} className="hover:bg-[#D4AF7F]/5 transition-colors">
-                              <td className="p-4"><p className="font-bold text-sm">{bondName}</p><p className="text-[10px] uppercase font-medium" style={{ color: 'rgba(212,175,127,0.6)' }}>{term}</p></td>
-                              <td className="p-4 text-right font-mono text-sm" style={{ color: 'rgba(245,241,234,0.85)' }}>{fmtUsd(inv.amount)}</td>
-                              <td className="p-4 text-right font-mono text-sm font-black" style={{ color: '#06B6D4' }}>{(roiRate * 100).toFixed(0)}%</td>
-                              <td className="p-4 text-right font-mono text-sm font-black" style={{ color: '#D4AF7F' }}>{fmtUsd(expected)}</td>
+                              <td className="p-4" data-label="Bond" data-span="all"><p className="font-bold text-sm">{bondName}</p><p className="text-[10px] uppercase font-medium" style={{ color: 'rgba(212,175,127,0.6)' }}>{term}</p></td>
+                              <td className="p-4 text-right font-mono text-sm" data-label="Principal" style={{ color: 'rgba(245,241,234,0.85)' }}>{fmtUsd(inv.amount)}</td>
+                              <td className="p-4 text-right font-mono text-sm font-black" data-label="ROI" style={{ color: '#06B6D4' }}>{(roiRate * 100).toFixed(0)}%</td>
+                              <td className="p-4 text-right font-mono text-sm font-black" data-label="Maturity" data-span="all" data-align="end" style={{ color: '#D4AF7F' }}>{fmtUsd(expected)}</td>
                             </tr>
                           );
                         })}
