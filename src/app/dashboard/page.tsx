@@ -109,6 +109,10 @@ export default function DashboardPage() {
   /* ── Derived metrics (unchanged from previous version) ─────────── */
   const totalPortfolioValue =
     (dashboard.mainBalance || 0) + (dashboard.interestBalance || 0) + (dashboard.totalDeposit || 0);
+  // Mobile "Total Balance" = spendable cash only (Available + Accrued) —
+  // the desktop card keeps the equity figure above; mobile shows this.
+  const totalBalanceMobile =
+    (dashboard.mainBalance || 0) + (dashboard.interestBalance || 0);
   const pnl24h = dashboard.recentROITotal || 0;
   const pnl24hPct = totalPortfolioValue > 0 ? (pnl24h / totalPortfolioValue) * 100 : 0;
   const isPnlUp = pnl24h >= 0;
@@ -274,7 +278,10 @@ export default function DashboardPage() {
                     Total Balance
                   </span>
                   <h2 className="text-3xl sm:text-4xl font-black tracking-tight" style={{ color: '#D4AF7F' }}>
-                    {fmtCur(totalPortfolioValue)}
+                    {/* Mobile: true Total Balance (Available + Accrued cash).
+                        Desktop (md+) keeps the original equity figure untouched. */}
+                    <span className="md:hidden">{fmtCur(totalBalanceMobile)}</span>
+                    <span className="hidden md:inline">{fmtCur(totalPortfolioValue)}</span>
                   </h2>
                   <div className="flex items-center gap-2 mt-3 flex-wrap">
                     <span
