@@ -41,7 +41,7 @@ function parseContent(raw: string): { text: string; imgs: string[] } {
 }
 
 /** Web3 support hero — glowing hex chat-token wired to a small support network. */
-function SupportHero({ size = 240 }: { size?: number }) {
+function SupportHero({ size = 240, className }: { size?: number; className?: string }) {
   const node = (x: number, y: number, ring: string) => (
     <g key={`${x}-${y}`}>
       <circle cx={x} cy={y} r="17" fill="url(#shNode)" stroke={ring} strokeWidth="1.4" />
@@ -50,7 +50,7 @@ function SupportHero({ size = 240 }: { size?: number }) {
     </g>
   );
   return (
-    <svg viewBox="0 0 280 200" width={size} role="img" aria-label="Support network">
+    <svg viewBox="0 0 280 200" width={size} role="img" aria-label="Support network" className={className}>
       <defs>
         <radialGradient id="shGlow" cx="50%" cy="44%" r="60%">
           <stop offset="0%" stopColor="rgba(168,85,247,0.5)" /><stop offset="100%" stopColor="rgba(168,85,247,0)" />
@@ -246,7 +246,7 @@ export default function SupportClient() {
     return (
       <div className="flex items-end gap-2" style={{ flexDirection: own ? 'row-reverse' : 'row' }}>
         <div
-          className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
+          className="w-8 h-8 md:w-7 md:h-7 rounded-full flex items-center justify-center flex-shrink-0"
           style={own
             ? { background: GRAD, color: '#fff' }
             : { background: 'rgba(6,182,212,0.14)', color: C.cyan, border: `1px solid ${C.border}` }}
@@ -254,21 +254,21 @@ export default function SupportClient() {
           {own ? <FaUser size={11} /> : <FaHeadset size={11} />}
         </div>
         <div
-          className="max-w-[74%] px-4 py-2.5 rounded-2xl"
+          className="max-w-[85%] md:max-w-[74%] px-3.5 py-3 md:px-4 md:py-2.5 rounded-2xl min-w-0 break-words"
           style={
             own
               ? { background: GRAD, color: '#fff', borderBottomRightRadius: 6, boxShadow: '0 6px 18px -8px rgba(168,85,247,0.6)' }
               : { background: 'rgba(255,255,255,0.05)', color: C.text, border: `1px solid ${C.border}`, borderBottomLeftRadius: 6 }
           }
         >
-          {text && <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">{text}</p>}
+          {text && <p className="text-[15px] md:text-sm whitespace-pre-wrap break-words leading-relaxed">{text}</p>}
           {imgs.map((u) => (
             <a key={u} href={u} target="_blank" rel="noreferrer">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={u} alt="attachment" className="mt-2 rounded-lg max-h-56 object-cover" style={{ border: '1px solid rgba(255,255,255,0.15)' }} />
+              <img src={u} alt="attachment" className="mt-2 rounded-lg max-h-56 max-w-full object-cover" style={{ border: '1px solid rgba(255,255,255,0.15)' }} />
             </a>
           ))}
-          <p className="text-[9px] mt-1.5" style={{ color: own ? 'rgba(255,255,255,0.7)' : C.sub }}>
+          <p className="text-[11px] mt-2 md:text-[9px] md:mt-1.5" style={{ color: own ? 'rgba(255,255,255,0.7)' : C.sub }}>
             {own ? 'You' : 'Support'} · {new Date(m.createdAt).toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', month: 'short', day: 'numeric' })}
           </p>
         </div>
@@ -294,19 +294,24 @@ export default function SupportClient() {
           </div>
           <button
             onClick={() => { setComposing(true); setActiveId(null); setError(null); }}
-            className="luxe-grad-purple-pink luxe-neumorphic text-white px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider flex items-center gap-2"
+            className="luxe-grad-purple-pink luxe-neumorphic text-white px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider flex items-center gap-2 min-h-[44px] md:min-h-0"
           >
             <FaPlus size={10} /> New Ticket
           </button>
         </header>
 
-        <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-[320px_1fr] relative z-10">
+        <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-[320px_1fr] content-start md:content-stretch relative z-10">
           {/* ── Ticket list ─────────────────────────────────── */}
-          <aside className="border-r overflow-y-auto" style={{ borderColor: C.border }}>
+          <aside
+            className={`border-b md:border-b-0 md:border-r overflow-y-auto shrink-0 ${
+              composing ? 'max-h-[24vh] md:max-h-none' : 'max-h-[36vh] md:max-h-none'
+            }`}
+            style={{ borderColor: C.border }}
+          >
             {loadingTickets ? (
-              <div className="p-8 flex justify-center"><AiOutlineLoading3Quarters className="animate-spin" style={{ color: C.gold }} /></div>
+              <div className="p-6 sm:p-8 flex justify-center"><AiOutlineLoading3Quarters className="animate-spin" style={{ color: C.gold }} /></div>
             ) : tickets.length === 0 ? (
-              <div className="p-8 text-center text-sm flex flex-col items-center gap-3" style={{ color: C.sub }}>
+              <div className="p-6 sm:p-8 text-center text-sm flex flex-col items-center gap-3" style={{ color: C.sub }}>
                 <FaInbox size={26} style={{ color: C.gold, opacity: 0.6 }} />
                 No open tickets yet.
               </div>
@@ -315,15 +320,15 @@ export default function SupportClient() {
                 <button
                   key={t.id}
                   onClick={() => { setActiveId(t.id); setComposing(false); }}
-                  className="w-full text-left p-4 border-b transition-colors hover:bg-white/5"
+                  className="w-full text-left p-4 border-b transition-colors hover:bg-white/5 min-h-[44px] md:min-h-0"
                   style={{ borderColor: C.border, background: activeId === t.id ? 'rgba(168,85,247,0.10)' : undefined }}
                 >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-bold text-sm truncate">{t.subject}</span>
-                    <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full flex-shrink-0" style={{ color: C.cyan, background: 'rgba(6,182,212,0.12)' }}>{t.status}</span>
+                  <div className="flex flex-col items-start gap-1.5 md:flex-row md:items-center md:justify-between md:gap-2">
+                    <span className="font-bold text-[15px] md:text-sm leading-snug min-w-0 break-words md:truncate">{t.subject}</span>
+                    <span className="text-[10px] md:text-[9px] font-bold uppercase px-2 py-0.5 rounded-full flex-shrink-0 whitespace-nowrap" style={{ color: C.cyan, background: 'rgba(6,182,212,0.12)' }}>{t.status}</span>
                   </div>
                   {t.lastMessage && (
-                    <p className="text-[11px] mt-1 truncate" style={{ color: C.sub }}>
+                    <p className="text-[12px] md:text-[11px] mt-1.5 md:mt-1 truncate" style={{ color: C.sub }}>
                       {t.lastMessage.sender === 'user' ? 'You: ' : 'Support: '}
                       {parseContent(t.lastMessage.content).text || '📎 Image'}
                     </p>
@@ -336,88 +341,88 @@ export default function SupportClient() {
           {/* ── Right pane ──────────────────────────────────── */}
           <main className="flex flex-col min-h-0">
             {composing ? (
-              <div className="p-5 sm:p-8 max-w-2xl w-full mx-auto overflow-y-auto">
-                <h2 className="text-xl font-black mb-1">Open a support ticket</h2>
+              <div className="p-4 sm:p-6 md:p-8 max-w-2xl w-full mx-auto overflow-y-auto">
+                <h2 className="text-lg sm:text-xl font-black mb-1">Open a support ticket</h2>
                 <p className="text-sm mb-6" style={{ color: C.sub }}>Pick a topic and describe your issue. You can attach a screenshot.</p>
 
-                <label className="text-[10px] uppercase font-bold tracking-widest block mb-2" style={{ color: C.gold }}>Subject</label>
+                <label className="text-[11px] md:text-[10px] uppercase font-bold tracking-widest block mb-2" style={{ color: C.gold }}>Subject</label>
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full mb-5 px-3 py-3 rounded-lg text-sm font-semibold"
+                  className="w-full mb-5 px-3 py-3 rounded-lg text-base md:text-sm font-semibold"
                   style={{ background: '#0B0E11', border: `1px solid ${C.border}`, color: C.text }}
                 >
                   {CATEGORIES.map((c) => <option key={c} value={c} style={{ background: '#0B0E11' }}>{c}</option>)}
                 </select>
 
-                <label className="text-[10px] uppercase font-bold tracking-widest block mb-2" style={{ color: C.gold }}>Message</label>
+                <label className="text-[11px] md:text-[10px] uppercase font-bold tracking-widest block mb-2" style={{ color: C.gold }}>Message</label>
                 <textarea
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
                   rows={6}
                   placeholder="Describe your issue…"
-                  className="w-full px-3 py-3 rounded-lg text-sm resize-none"
+                  className="w-full px-3 py-3 rounded-lg text-base md:text-sm resize-none"
                   style={{ background: '#0B0E11', border: `1px solid ${C.border}`, color: C.text }}
                 />
 
-                <div className="flex items-center gap-3 mt-3">
-                  <label className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest cursor-pointer px-3 py-2 rounded-lg" style={{ color: C.gold, border: `1px solid ${C.border}` }}>
+                <div className="flex flex-wrap items-center gap-3 mt-4 md:mt-3">
+                  <label className="flex items-center justify-center gap-2 text-[12px] md:text-[11px] font-bold uppercase tracking-widest cursor-pointer px-4 py-2.5 md:px-3 md:py-2 rounded-lg min-h-[44px] md:min-h-0" style={{ color: C.gold, border: `1px solid ${C.border}` }}>
                     <FaPaperclip size={11} /> {file ? 'Change image' : 'Attach image'}
                     <input type="file" accept="image/jpeg,image/png" hidden onChange={(e) => setFile(e.target.files?.[0] || null)} />
                   </label>
                   {file && (
-                    <span className="text-[11px] flex items-center gap-2" style={{ color: C.sub }}>
-                      {file.name}
+                    <span className="text-[12px] md:text-[11px] flex items-center gap-2 min-w-0" style={{ color: C.sub }}>
+                      <span className="truncate max-w-[10rem]">{file.name}</span>
                       <button onClick={() => setFile(null)} style={{ color: '#FF3D71' }}><FaTimes size={10} /></button>
                     </span>
                   )}
                 </div>
 
-                {error && <p className="text-[12px] mt-3" style={{ color: '#FF3D71' }}>{error}</p>}
+                {error && <p className="text-[13px] md:text-[12px] mt-3" style={{ color: '#FF3D71' }}>{error}</p>}
 
-                <div className="flex gap-3 mt-6">
-                  <button onClick={() => { setComposing(false); setError(null); }} className="px-5 py-2.5 rounded-lg text-[11px] font-bold uppercase" style={{ border: `1px solid ${C.border}`, color: C.sub }}>Cancel</button>
-                  <button onClick={createTicket} disabled={sending} className="luxe-grad-purple-pink luxe-neumorphic text-white px-6 py-2.5 rounded-lg text-[11px] font-black uppercase tracking-widest flex items-center gap-2 disabled:opacity-50">
+                <div className="flex flex-col gap-3 mt-6 md:flex-row">
+                  <button onClick={() => { setComposing(false); setError(null); }} className="w-full md:w-auto px-5 py-2.5 rounded-lg text-[12px] md:text-[11px] font-bold uppercase min-h-[48px] md:min-h-0" style={{ border: `1px solid ${C.border}`, color: C.sub }}>Cancel</button>
+                  <button onClick={createTicket} disabled={sending} className="w-full md:w-auto luxe-grad-purple-pink luxe-neumorphic text-white px-6 py-2.5 rounded-lg text-[12px] md:text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-50 min-h-[48px] md:min-h-0">
                     {sending && <AiOutlineLoading3Quarters className="animate-spin" size={12} />} Submit Ticket
                   </button>
                 </div>
               </div>
             ) : activeId == null ? (
-              <div className="flex-1 flex flex-col items-center justify-center gap-5 text-center p-8">
-                <SupportHero size={240} />
-                <div>
+              <div className="flex-1 min-h-[60vh] md:min-h-[auto] flex flex-col items-center justify-center gap-5 text-center p-6 sm:p-8">
+                <SupportHero size={240} className="max-w-full h-auto" />
+                <div className="min-w-0">
                   <h3 className="text-lg font-black" style={{ color: C.text }}>How can we help?</h3>
                   <p className="text-sm mt-1" style={{ color: C.sub }}>Pick a conversation on the left, or open a new ticket.</p>
                 </div>
-                <button onClick={() => { setComposing(true); setActiveId(null); setError(null); }} className="luxe-grad-purple-pink luxe-neumorphic text-white px-5 py-2.5 rounded-lg text-[11px] font-black uppercase tracking-widest flex items-center gap-2">
+                <button onClick={() => { setComposing(true); setActiveId(null); setError(null); }} className="w-full max-w-xs sm:w-auto sm:max-w-none luxe-grad-purple-pink luxe-neumorphic text-white px-5 py-2.5 rounded-lg text-[12px] md:text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-2 min-h-[48px] md:min-h-0">
                   <FaPlus size={10} /> New Ticket
                 </button>
               </div>
             ) : (
               <>
-                <div className="px-5 py-3 border-b flex items-center justify-between" style={{ borderColor: C.border, background: 'rgba(255,255,255,0.03)' }}>
-                  <div>
-                    <p className="text-[9px] uppercase font-bold tracking-[0.2em]" style={{ color: C.gold }}>Ticket #{activeId}</p>
-                    <h3 className="text-sm font-black">{activeSubject}</h3>
+                <div className="px-4 md:px-5 py-3 border-b flex items-center justify-between" style={{ borderColor: C.border, background: 'rgba(255,255,255,0.03)' }}>
+                  <div className="min-w-0">
+                    <p className="text-[10px] md:text-[9px] uppercase font-bold tracking-[0.2em]" style={{ color: C.gold }}>Ticket #{activeId}</p>
+                    <h3 className="text-[15px] md:text-sm font-black break-words">{activeSubject}</h3>
                   </div>
                 </div>
 
-                <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto p-5 space-y-4">
-                  {messages.length === 0 && <p className="text-center text-sm" style={{ color: C.sub }}>No messages yet.</p>}
+                <div ref={scrollRef} className="flex-1 min-h-[50vh] max-h-[70vh] md:min-h-0 md:max-h-none overflow-y-auto p-4 md:p-5 space-y-4">
+                  {messages.length === 0 && <p className="text-center text-sm py-6" style={{ color: C.sub }}>No messages yet.</p>}
                   {messages.map((m) => <Bubble key={m.id} m={m} />)}
                 </div>
 
-                {error && <p className="px-5 text-[12px]" style={{ color: '#FF3D71' }}>{error}</p>}
+                {error && <p className="px-4 md:px-5 text-[13px] md:text-[12px]" style={{ color: '#FF3D71' }}>{error}</p>}
 
-                <div className="p-4 border-t flex items-end gap-3" style={{ borderColor: C.border, background: 'rgba(255,255,255,0.03)' }}>
-                  <label className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center cursor-pointer" style={{ color: C.gold, border: `1px solid ${C.border}` }} title="Attach image">
+                <div className="p-3 md:p-4 border-t flex items-end gap-2 md:gap-3" style={{ borderColor: C.border, background: 'rgba(255,255,255,0.03)' }}>
+                  <label className="flex-shrink-0 w-11 h-11 md:w-10 md:h-10 rounded-lg flex items-center justify-center cursor-pointer" style={{ color: C.gold, border: `1px solid ${C.border}` }} title="Attach image">
                     <FaPaperclip size={14} />
                     <input type="file" accept="image/jpeg,image/png" hidden onChange={(e) => setReplyFile(e.target.files?.[0] || null)} />
                   </label>
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     {replyFile && (
-                      <div className="text-[11px] mb-1 flex items-center gap-2" style={{ color: C.sub }}>
-                        {replyFile.name}
+                      <div className="text-[12px] md:text-[11px] mb-1 flex items-center gap-2" style={{ color: C.sub }}>
+                        <span className="truncate max-w-[10rem]">{replyFile.name}</span>
                         <button onClick={() => setReplyFile(null)} style={{ color: '#FF3D71' }}><FaTimes size={10} /></button>
                       </div>
                     )}
@@ -427,11 +432,11 @@ export default function SupportClient() {
                       onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendReply(); } }}
                       rows={1}
                       placeholder="Type a message…"
-                      className="w-full px-3 py-2.5 rounded-lg text-sm resize-none"
+                      className="w-full px-3 py-2.5 rounded-lg text-base md:text-sm resize-none"
                       style={{ background: '#0B0E11', border: `1px solid ${C.border}`, color: C.text }}
                     />
                   </div>
-                  <button onClick={sendReply} disabled={sending} className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center text-white disabled:opacity-50" style={{ background: GRAD }} title="Send">
+                  <button onClick={sendReply} disabled={sending} className="flex-shrink-0 w-11 h-11 md:w-10 md:h-10 rounded-lg flex items-center justify-center text-white disabled:opacity-50" style={{ background: GRAD }} title="Send">
                     {sending ? <AiOutlineLoading3Quarters className="animate-spin" size={14} /> : <FaPaperPlane size={13} />}
                   </button>
                 </div>

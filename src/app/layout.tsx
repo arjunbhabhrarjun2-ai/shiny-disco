@@ -2,6 +2,7 @@ import { Geist } from 'next/font/google';
 import { AuthProvider } from "@/components/context/AuthContext";
 import { CurrencyProvider } from "@/components/context/CurrencyContext";
 import "./globals.css";
+import "./mobile-shell.css";
 import { Metadata } from "next";
 import Preloader from "@/components/Preloader";
 import PageTransition from "@/components/PageTransition";

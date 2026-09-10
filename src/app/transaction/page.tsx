@@ -17,6 +17,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/context/AuthContext';
 import { useTransactions } from '@/lib/hooks/useTransactions';
 import Sidebar from '@/components/Sidebar';
+import MobileOrders from '@/components/transaction/MobileOrders';
 import Logo from '@/components/Logo';
 import {
   FaSearch,
@@ -205,12 +206,24 @@ export default function TransactionsPage() {
 
   return (
     <div className="flex min-h-screen text-[#F5F1EA] font-['Inter',_sans-serif]" style={{ background: '#06090F' }}>
-      <div className="luxe-ambient-orb" style={{ background: '#A855F7', top: -200, left: -100 }} />
-      <div className="luxe-ambient-orb" style={{ background: '#06B6D4', bottom: -200, right: -100 }} />
+      {/* Ambient orbs — desktop only; mobile uses the k-shell backdrop */}
+      <div className="luxe-ambient-orb hidden md:block" style={{ background: '#A855F7', top: -200, left: -100 }} />
+      <div className="luxe-ambient-orb hidden md:block" style={{ background: '#06B6D4', bottom: -200, right: -100 }} />
 
       <Sidebar />
 
-      <div className="flex-1 min-w-0 flex flex-col relative">
+      {/* ── MOBILE composition (< md) — mirrors the mobile activity mock ── */}
+      <div className="md:hidden flex-1 min-w-0 flex flex-col relative">
+        <MobileOrders
+          rows={allRows}
+          fmt={fmt}
+          fmtUsd={fmtUsd}
+          onCancelWithdrawal={() => mutate()}
+        />
+      </div>
+
+      {/* ── DESKTOP composition (md+) — unchanged ── */}
+      <div className="hidden md:flex flex-1 min-w-0 flex flex-col relative">
         <header
           className="sticky top-0 z-30 h-16 flex justify-between items-center px-4 sm:px-6 border-b"
           style={{ background: 'rgba(6,9,15,0.65)', backdropFilter: 'blur(12px)', borderColor: 'rgba(255,255,255,0.05)' }}

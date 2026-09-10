@@ -7,6 +7,7 @@ import { useAuth } from '@/components/context/AuthContext';
 import { authFetch } from '@/lib/clientAuth';
 import { FaCog, FaEnvelope, FaLock, FaKey, FaCopy, FaCheckCircle, FaTrashAlt } from 'react-icons/fa';
 import { AiOutlineLoading3Quarters } from 'react-icons/ai';
+import MobileSettings from '@/components/settings/MobileSettings';
 
 const C = {
   bg: '#06090F',
@@ -140,7 +141,8 @@ export default function SettingsPage() {
   return (
     <div className="flex min-h-screen text-[#F5F1EA] font-['Inter',_sans-serif]" style={{ background: C.bg }}>
       <Sidebar />
-      <div className="flex-1 min-w-0 flex flex-col relative overflow-hidden">
+      {/* ── DESKTOP composition (md+) — inner JSX unchanged ── */}
+      <div className="hidden md:flex flex-1 min-w-0 flex-col relative overflow-hidden">
         <div className="luxe-ambient-orb" style={{ background: '#A855F7', top: -200, left: -100 }} />
         <div className="luxe-ambient-orb" style={{ background: '#06B6D4', bottom: -200, right: -100 }} />
         <header className="sticky top-0 z-30 h-16 flex items-center gap-3 px-4 sm:px-6 border-b"
@@ -236,6 +238,18 @@ export default function SettingsPage() {
             </section>
           </div>
         </main>
+      </div>
+
+      {/* ── MOBILE composition (< md) — mirrors the settings mobile mock ── */}
+      <div
+        className="md:hidden flex-1 min-w-0 flex flex-col relative"
+        style={{
+          background:
+            'radial-gradient(920px 640px at 88% -14%, rgba(168,85,247,0.13), transparent 62%), radial-gradient(780px 560px at -12% 112%, rgba(6,182,212,0.10), transparent 60%), #06090F',
+          minHeight: '100dvh',
+        }}
+      >
+        <MobileSettings />
       </div>
     </div>
   );

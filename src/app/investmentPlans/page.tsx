@@ -15,7 +15,7 @@
  *   • confirm / success / error modal flow
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/context/AuthContext';
 import Sidebar from '@/components/Sidebar';
@@ -110,6 +110,7 @@ export default function InvestmentPlansPage() {
   const router = useRouter();
 
   const [selectedPlan, setSelectedPlan] = useState<PlanTier | null>(null);
+  const subscribeRef = useRef<HTMLElement | null>(null);
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -124,6 +125,35 @@ export default function InvestmentPlansPage() {
   const projectedReturn = selectedPlan && amount
     ? Number(amount) + (Number(amount) * selectedPlan.roiNum) / 100
     : 0;
+
+  /**
+   * Mobile only: when a plan tier is picked, bring the "Subscribe" card into
+   * view so the user doesn't have to scroll to find it. Desktop keeps its
+   * current behaviour (the card sits beside the plans, no scrolling needed).
+   */
+  useEffect(() => {
+    if (!selectedPlan || typeof window === 'undefined') return;
+    // < 768px = the app's mobile breakpoint
+    if (!window.matchMedia('(max-width: 767px)').matches) return;
+
+    const raf = window.requestAnimationFrame(() => {
+      const el = subscribeRef.current;
+      if (!el) return;
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      // Offset for the sticky page header so the heading isn't hidden under it.
+      const header = document.querySelector('header') as HTMLElement | null;
+      const offset = (header?.offsetHeight ?? 56) + 12;
+      const top = el.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({ top: Math.max(0, top), behavior: reduceMotion ? 'auto' : 'smooth' });
+      // Focus the amount field so the user can start typing immediately.
+      window.setTimeout(() => {
+        const input = el.querySelector('input[type="number"]') as HTMLInputElement | null;
+        input?.focus({ preventScroll: true });
+      }, reduceMotion ? 0 : 450);
+    });
+
+    return () => window.cancelAnimationFrame(raf);
+  }, [selectedPlan]);
 
   /* ── Invest flow (logic preserved) ───────────────────────────── */
   async function handleInvest() {
@@ -306,7 +336,7 @@ export default function InvestmentPlansPage() {
 
             {/* ── Amount form (appears once a plan is selected) ─── */}
             {selectedPlan && (
-              <section className="luxe-glass-border rounded-2xl p-6 sm:p-8 max-w-2xl">
+              <section ref={subscribeRef} className="luxe-glass-border rounded-2xl p-6 sm:p-8 max-w-2xl">
                 <div className="flex items-center gap-2.5 mb-5">
                   <FaShieldAlt style={{ color: selectedPlan.accent }} size={13} />
                   <h3 className="text-sm font-black uppercase tracking-widest">Subscribe to {selectedPlan.tierLabel}</h3>

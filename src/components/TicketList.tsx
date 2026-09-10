@@ -79,12 +79,12 @@ export default function TicketList({ onTicketSelect, activeTicketId, refreshTrig
         >
           Support Tickets
         </h2>
-        <div className="flex gap-1.5">
+        <div className="flex flex-wrap gap-2 md:gap-1.5">
           {(['all', 'open', 'closed'] as const).map((filterType) => (
             <button
               key={filterType}
               onClick={() => setFilter(filterType)}
-              className="px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 capitalize"
+              className="flex-1 md:flex-initial inline-flex items-center justify-center px-4 md:px-3 py-2 md:py-1 min-h-[44px] md:min-h-0 rounded-full text-[13px] md:text-xs font-medium transition-all duration-200 capitalize"
               style={
                 filter === filterType
                   ? { background: '#3B82F6', color: '#fff' }
@@ -100,7 +100,7 @@ export default function TicketList({ onTicketSelect, activeTicketId, refreshTrig
         </div>
       </div>
 
-      <div className="max-h-96 overflow-y-auto">
+      <div className="max-h-[60vh] md:max-h-96 overflow-y-auto">
         {filteredTickets.length === 0 ? (
           <div className="p-6 text-center">
             <p className="text-sm" style={{ color: '#6B7280' }}>
@@ -130,16 +130,16 @@ export default function TicketList({ onTicketSelect, activeTicketId, refreshTrig
                 }}
                 onClick={() => onTicketSelect(ticket.id)}
               >
-                <div className="flex justify-between items-start mb-2">
-                  <div className="flex-1 min-w-0 mr-3">
-                    <h3 className="text-sm text-white font-medium truncate">{ticket.subject}</h3>
-                    <p className="text-xs mt-0.5" style={{ color: '#6B7280' }}>
+                <div className="flex flex-col gap-2 mb-2 md:flex-row md:items-start md:justify-between md:gap-0">
+                  <div className="flex-1 min-w-0 mr-0 md:mr-3">
+                    <h3 className="text-[15px] md:text-sm text-white font-medium break-words md:truncate">{ticket.subject}</h3>
+                    <p className="text-[12px] md:text-xs mt-0.5" style={{ color: '#6B7280' }}>
                       #{ticket.id} · {ticket.messageCount} messages
                     </p>
                   </div>
                   <div className="flex items-center gap-1.5 flex-shrink-0">
                     <span
-                      className="px-2 py-0.5 rounded-full text-xs font-medium"
+                      className="px-2 py-1 md:py-0.5 rounded-full text-[11px] md:text-xs font-medium"
                       style={
                         ticket.status === 'open'
                           ? { background: 'rgba(16,185,129,0.1)', color: '#10B981' }
@@ -155,20 +155,20 @@ export default function TicketList({ onTicketSelect, activeTicketId, refreshTrig
                 </div>
 
                 {ticket.lastMessage && (
-                  <p className="text-xs truncate mb-2" style={{ color: '#6B7280' }}>
+                  <p className="text-[12px] md:text-xs truncate mb-2" style={{ color: '#6B7280' }}>
                     {ticket.lastMessage.sender === 'user' ? 'You' : 'Support'}:{' '}
                     {ticket.lastMessage.content}
                   </p>
                 )}
 
-                <div className="flex justify-between items-center">
-                  <span className="text-xs" style={{ color: '#4B5563' }}>
+                <div className="flex justify-between items-center gap-2">
+                  <span className="text-[12px] md:text-xs" style={{ color: '#4B5563' }}>
                     {new Date(ticket.updatedAt).toLocaleDateString()}
                   </span>
                   {ticket.status === 'open' ? (
                     <button
                       onClick={(e) => { e.stopPropagation(); handleCloseTicket(ticket.id); }}
-                      className="text-xs transition-colors duration-200"
+                      className="inline-flex items-center justify-center text-[13px] md:text-xs transition-colors duration-200 min-h-[44px] px-3 -mr-1 rounded-lg md:min-h-0 md:px-0 md:mr-0"
                       style={{ color: '#F43F5E' }}
                       onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#FB7185'; }}
                       onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#F43F5E'; }}
@@ -178,7 +178,7 @@ export default function TicketList({ onTicketSelect, activeTicketId, refreshTrig
                   ) : (
                     <button
                       onClick={(e) => { e.stopPropagation(); handleReopenTicket(ticket.id); }}
-                      className="text-xs transition-colors duration-200"
+                      className="inline-flex items-center justify-center text-[13px] md:text-xs transition-colors duration-200 min-h-[44px] px-3 -mr-1 rounded-lg md:min-h-0 md:px-0 md:mr-0"
                       style={{ color: '#60A5FA' }}
                       onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#93C5FD'; }}
                       onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#60A5FA'; }}

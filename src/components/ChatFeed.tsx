@@ -103,16 +103,15 @@ export default function ChatFeed({ ticketId }: ChatFeedProps) {
 
   return (
     <div
-      className="flex flex-col"
-      style={{ height: '520px' }}
+      className="flex flex-col h-[70vh] min-h-[420px] md:h-[520px] md:min-h-0"
     >
       {/* Ticket info */}
       <div
         className="pb-4 mb-4"
         style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
       >
-        <h4 className="text-sm font-medium text-white mb-0.5">{ticket.subject}</h4>
-        <div className="flex items-center gap-2">
+        <h4 className="text-[15px] md:text-sm font-medium text-white mb-1 md:mb-0.5 break-words">{ticket.subject}</h4>
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 md:gap-2">
           <span className="text-xs" style={{ color: '#6B7280' }}>Ticket #{ticket.id}</span>
           <span className="text-xs" style={{ color: '#4B5563' }}>·</span>
           <span
@@ -145,18 +144,18 @@ export default function ChatFeed({ ticketId }: ChatFeedProps) {
               className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className="max-w-xs lg:max-w-sm px-4 py-2.5 rounded-2xl"
+                className="max-w-[85%] sm:max-w-xs lg:max-w-sm px-4 py-2.5 rounded-2xl min-w-0 break-words"
                 style={
                   message.sender === 'user'
                     ? { background: '#3B82F6', borderRadius: '16px 16px 4px 16px' }
                     : { background: '#111827', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '16px 16px 16px 4px' }
                 }
               >
-                <p className="text-sm text-white leading-relaxed whitespace-pre-wrap">
+                <p className="text-[15px] md:text-sm text-white leading-relaxed whitespace-pre-wrap break-words">
                   {message.message}
                 </p>
                 <p
-                  className="text-xs mt-1"
+                  className="text-[11px] md:text-xs mt-1.5 md:mt-1"
                   style={{ color: message.sender === 'user' ? 'rgba(255,255,255,0.6)' : '#4B5563' }}
                 >
                   {new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -176,7 +175,7 @@ export default function ChatFeed({ ticketId }: ChatFeedProps) {
           onChange={(e) => setNewMessage(e.target.value)}
           placeholder="Type a message..."
           disabled={isSending}
-          className="flex-1 px-4 py-2.5 text-sm transition-all duration-200"
+          className="flex-1 min-w-0 px-4 py-2.5 min-h-[44px] md:min-h-0 text-base md:text-sm transition-all duration-200"
           style={{
             background: '#111827',
             border: '1px solid rgba(255,255,255,0.08)',
@@ -190,7 +189,7 @@ export default function ChatFeed({ ticketId }: ChatFeedProps) {
         <button
           type="submit"
           disabled={isSending || !newMessage.trim()}
-          className="btn-primary px-4 py-2.5 rounded-lg text-white flex items-center justify-center"
+          className="btn-primary px-4 py-2.5 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 rounded-lg text-white flex items-center justify-center"
           style={{ opacity: (isSending || !newMessage.trim()) ? 0.5 : 1, cursor: (isSending || !newMessage.trim()) ? 'not-allowed' : 'pointer' }}
         >
           {isSending

@@ -37,7 +37,9 @@ import Logo from '@/components/Logo';
 import MarketNews from '@/components/MarketNews';
 import TickerTape from '@/components/TickerTape';
 import CoinIcon from '@/components/CoinIcon';
+import DashboardMobile from '@/components/dashboard/DashboardMobile';
 import { useCurrency } from '@/components/context/CurrencyContext';
+import AtriumInvestPopup from '@/components/atrium/AtriumInvestPopup';
 
 /* ── Small helpers ─────────────────────────────────────────────────── */
 const fmt = (n: number, decimals = 2) =>
@@ -203,13 +205,14 @@ export default function DashboardPage() {
       className="flex min-h-screen text-[#F5F1EA] font-['Inter',_sans-serif]"
       style={{ background: '#06090F' }}
     >
-      {/* Ambient orbs (Stitch ref) */}
-      <div className="luxe-ambient-orb" style={{ background: '#A855F7', top: -200, left: -100 }} />
-      <div className="luxe-ambient-orb" style={{ background: '#06B6D4', bottom: -200, right: -100 }} />
+      {/* Ambient orbs (Stitch ref) — desktop only; mobile uses the k-shell backdrop */}
+      <div className="luxe-ambient-orb hidden md:block" style={{ background: '#A855F7', top: -200, left: -100 }} />
+      <div className="luxe-ambient-orb hidden md:block" style={{ background: '#06B6D4', bottom: -200, right: -100 }} />
 
       <Sidebar />
 
-      <div className="flex-1 min-w-0 flex flex-col relative">
+      {/* ── DESKTOP composition (md+) — unchanged ── */}
+      <div className="hidden md:flex flex-1 min-w-0 flex-col relative">
         {/* ── Top header (Search · Ticker · Notifications · Deposit) ── */}
         <header
           className="sticky top-0 z-30 h-14 flex justify-between items-center px-4 sm:px-6 border-b"
@@ -672,6 +675,35 @@ export default function DashboardPage() {
           </div>
         </main>
       </div>
+
+      {/* ── MOBILE composition (< md) — mirrors the mobile design mock ── */}
+      <div
+        className="md:hidden flex-1 min-w-0 flex flex-col relative"
+        style={{
+          background:
+            'radial-gradient(920px 640px at 88% -14%, rgba(168,85,247,0.13), transparent 62%), radial-gradient(780px 560px at -12% 112%, rgba(6,182,212,0.10), transparent 60%), #06090F',
+          minHeight: '100dvh',
+        }}
+      >
+        <DashboardMobile
+          firstName={user?.firstName}
+          totalBalance={totalBalanceMobile}
+          available={dashboard.mainBalance || 0}
+          accrued={dashboard.interestBalance || 0}
+          deposited={dashboard.totalDeposit || 0}
+          earned={dashboard.totalEarn || 0}
+          pnl24h={pnl24h}
+          pnl24hPct={pnl24hPct}
+          positions={positions as any}
+          openOrders={openOrders as any}
+          fmt={fmt}
+          fmtCur={fmtCur}
+        />
+      </div>
+
+      {/* ATRIUM "Invest now" ad — slides in 10 s after the dashboard loads,
+          once per browser session. See components/atrium/AtriumInvestPopup. */}
+      <AtriumInvestPopup userKey={user.email} />
     </div>
   );
 }

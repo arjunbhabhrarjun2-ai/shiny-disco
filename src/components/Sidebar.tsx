@@ -33,6 +33,7 @@ import {
   FaLandmark,
   FaSatelliteDish,
   FaCog,
+  FaSignOutAlt,
 } from 'react-icons/fa';
 import { useDashboard } from '@/lib/hooks/useDashboard';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -79,7 +80,7 @@ interface NavGroup {
 }
 
 export default function Sidebar() {
-  const { user, refreshUser, setUser } = useAuth();
+  const { user, refreshUser, setUser, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const { dashboard, isLoading } = useDashboard(user?.email || null);
@@ -933,205 +934,10 @@ export default function Sidebar() {
                 </button>
               </div>
 
-              {/* Account summary — mirrors the desktop sidebar balance card:
-                  Account · Total Balance · Available · Accrued · Deposited ·
-                  Earned, with the Settings + currency toggle. */}
-              <div
-                className="mb-4 p-4 rounded-2xl relative overflow-hidden"
-                style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  backdropFilter: 'blur(20px) saturate(180%)',
-                  WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                }}
-              >
-                <div
-                  className="absolute -top-12 -right-12 w-36 h-36 rounded-full pointer-events-none"
-                  style={{
-                    background:
-                      'radial-gradient(circle, rgba(168,85,247,0.18) 0%, transparent 70%)',
-                    filter: 'blur(30px)',
-                  }}
-                />
-                <div className="relative">
-                  <div className="flex items-center justify-between mb-3">
-                    <span
-                      className="text-[10px] uppercase font-medium"
-                      style={{ color: C.textSec, letterSpacing: '0.24em' }}
-                    >
-                      Account
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setMobileMoreOpen(false);
-                          router.push('/settings');
-                        }}
-                        title="Settings"
-                        className="w-7 h-7 rounded-full flex items-center justify-center"
-                        style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${C.borderAccent}`, color: C.textSec }}
-                      >
-                        <FaCog size={11} />
-                      </button>
-                      <div className="relative">
-                        <button
-                          type="button"
-                          onClick={() => setCurrencyOpen((prev) => !prev)}
-                          className="text-[9px] uppercase px-2 py-1 rounded-full flex items-center gap-1"
-                          style={{
-                            background: 'rgba(0,255,163,0.06)',
-                            border: '1px solid rgba(0,255,163,0.18)',
-                            color: C.green,
-                            letterSpacing: '0.18em',
-                          }}
-                        >
-                          {selectedCurrency}
-                          <FaChevronDown
-                            size={8}
-                            style={{
-                              transform: currencyOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                              transition: 'transform 0.2s',
-                            }}
-                          />
-                        </button>
-                        {currencyOpen && (
-                          <div
-                            className="absolute right-0 mt-1 rounded-lg overflow-hidden z-30"
-                            style={{
-                              background: C.bgElevated,
-                              border: `1px solid ${C.borderAccent}`,
-                              minWidth: 70,
-                            }}
-                          >
-                            {(['USD', 'EUR', 'GBP'] as const).map((currency) => (
-                              <button
-                                key={currency}
-                                type="button"
-                                onClick={() => {
-                                  setSelectedCurrency(currency);
-                                  setCurrencyOpen(false);
-                                }}
-                                className="w-full text-left px-2 py-1.5 text-[10px] uppercase transition-colors"
-                                style={{
-                                  color: selectedCurrency === currency ? C.textPri : C.textSec,
-                                  background:
-                                    selectedCurrency === currency
-                                      ? 'rgba(99,102,241,0.12)'
-                                      : 'transparent',
-                                  letterSpacing: '0.12em',
-                                }}
-                              >
-                                {currency}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {isLoading ? (
-                    <p className="text-xs" style={{ color: C.textSec }}>
-                      Loading…
-                    </p>
-                  ) : (
-                    <>
-                      <p
-                        className="text-[9px] uppercase mb-1"
-                        style={{ color: C.textTer, letterSpacing: '0.2em' }}
-                      >
-                        Total Balance
-                      </p>
-                      <p
-                        className="font-serif-display tabular-nums mb-3"
-                        style={{
-                          background: GRAD_PRIMARY,
-                          WebkitBackgroundClip: 'text',
-                          WebkitTextFillColor: 'transparent',
-                          fontSize: '1.5rem',
-                          lineHeight: 1.1,
-                          letterSpacing: '-0.01em',
-                        }}
-                      >
-                        {currencySymbolMap[selectedCurrency]}
-                        {formatMoney(
-                          convertCurrency(
-                            ((dashboard as any)?.mainBalance || 0) +
-                              ((dashboard as any)?.interestBalance || 0)
-                          )
-                        )}
-                      </p>
-
-                      <div
-                        className="grid grid-cols-2 gap-2 mt-3 pt-3"
-                        style={{ borderTop: `1px solid ${C.border}` }}
-                      >
-                        {[
-                          { label: 'Available', key: 'mainBalance' },
-                          { label: 'Accrued', key: 'interestBalance' },
-                          { label: 'Deposited', key: 'totalDeposit' },
-                          { label: 'Earned', key: 'totalEarn' },
-                        ].map(({ label, key }) => (
-                          <div key={key}>
-                            <p
-                              className="text-[9px] uppercase mb-0.5"
-                              style={{ color: C.textTer, letterSpacing: '0.18em' }}
-                            >
-                              {label}
-                            </p>
-                            <p
-                              className="tabular-nums"
-                              style={{
-                                color: C.textPri,
-                                fontSize: 12,
-                                fontFamily: 'var(--font-jetbrains-mono, monospace)',
-                              }}
-                            >
-                              {currencySymbolMap[selectedCurrency]}
-                              {formatMoney(convertCurrency((dashboard as any)?.[key] || 0))}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {/* Quick actions — Deposit / Withdraw always one tap away */}
-              <div className="grid grid-cols-2 gap-2 mb-4">
-                <button
-                  onClick={() => {
-                    router.push('/addFunds');
-                    setMobileMoreOpen(false);
-                  }}
-                  className="flex items-center justify-center gap-2 px-3 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest active:scale-95 transition-all"
-                  style={{
-                    background: GRAD_PRIMARY,
-                    color: C.textPri,
-                    boxShadow: '0 4px 14px -2px rgba(168,85,247,0.4)',
-                  }}
-                >
-                  <FaPlusCircle size={13} />
-                  Deposit
-                </button>
-                <button
-                  onClick={() => {
-                    router.push('/withdrawal');
-                    setMobileMoreOpen(false);
-                  }}
-                  className="flex items-center justify-center gap-2 px-3 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest active:scale-95 transition-all"
-                  style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    color: C.textSec,
-                    border: `1px solid ${C.borderAccent}`,
-                  }}
-                >
-                  <FaPaperPlane size={12} />
-                  Withdraw
-                </button>
-              </div>
+              {/* Account summary, currency toggle and Deposit/Withdraw quick
+                  actions were removed from the mobile More sheet by request —
+                  Settings now lives in "All Sections" and currency stays on
+                  the desktop sidebar card only. */}
 
               <div className="mb-3">
                 <span
@@ -1183,7 +989,59 @@ export default function Sidebar() {
                     </button>
                   );
                 })}
+
+                {/* Settings — sits beside Support in the All Sections grid */}
+                {(() => {
+                  const isActive = pathname === '/settings';
+                  return (
+                    <button
+                      onClick={() => {
+                        router.push('/settings');
+                        setMobileMoreOpen(false);
+                      }}
+                      className="flex items-center gap-2 px-3 py-3 rounded-lg text-xs transition-all text-left"
+                      style={{
+                        background: isActive
+                          ? 'rgba(168,85,247,0.10)'
+                          : 'rgba(255,255,255,0.02)',
+                        border: isActive
+                          ? '1px solid rgba(168,85,247,0.32)'
+                          : `1px solid ${C.border}`,
+                        color: isActive ? C.textPri : C.textSec,
+                      }}
+                    >
+                      <span
+                        className="w-6 h-6 rounded-md flex items-center justify-center shrink-0"
+                        style={{
+                          background: isActive ? GRAD_PRIMARY : 'transparent',
+                          color: isActive ? '#0B0D10' : C.textSec,
+                        }}
+                      >
+                        <FaCog size={11} />
+                      </span>
+                      <span className="text-[11px] truncate">Settings</span>
+                    </button>
+                  );
+                })()}
               </div>
+
+              {/* Log out — last item in the sheet */}
+              <button
+                onClick={() => {
+                  setMobileMoreOpen(false);
+                  logout();
+                }}
+                className="w-full mt-4 flex items-center justify-center gap-2 px-3 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest active:scale-95 transition-all"
+                style={{
+                  background: 'rgba(244,63,94,0.08)',
+                  border: '1px solid rgba(244,63,94,0.35)',
+                  color: '#FB7185',
+                  letterSpacing: '0.18em',
+                }}
+              >
+                <FaSignOutAlt size={13} />
+                Log out
+              </button>
             </motion.div>
           </>
         )}

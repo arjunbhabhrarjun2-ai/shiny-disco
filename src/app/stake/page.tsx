@@ -8,10 +8,12 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/context/AuthContext';
+import { useCurrency } from '@/components/context/CurrencyContext';
 import { useDashboard } from '@/lib/hooks/useDashboard';
 import Sidebar from '@/components/Sidebar';
 import Logo from '@/components/Logo';
 import CoinIcon from '@/components/CoinIcon';
+import MobileEarn from '@/components/stake/MobileEarn';
 import {
   FaSeedling,
   FaShieldAlt,
@@ -48,6 +50,7 @@ interface ProtocolCard {
 export default function StakePage() {
   const { user, isLoading: authLoading, logout } = useAuth();
   const router = useRouter();
+  const { format: fmtCur } = useCurrency(); // display in selected currency
   const { dashboard, isLoading, isError } = useDashboard(user?.email || null);
 
   useEffect(() => {
@@ -133,6 +136,46 @@ export default function StakePage() {
     { tier: 'Institutional Capital Fund', tierColor: 'ELITE TIER', sub: 'Maximum leverage yield for HNW accounts.', plan: 'gold', roiPct: 55, coupon: '55%', duration: '30 Days', icon: <FaCoins size={18} /> },
   ];
 
+  // ── Mobile composition data (same live sources as the desktop above) ──
+  // The API does not chain-tag capital, so the live staked total is split
+  // across the three protocol pools with the same mix the Earn-summary card
+  // on /dashboard uses (ETH 30 / SOL 50 / TRX 20) so rows sum to the hero.
+  const PROTOCOL_TICKERS: Record<string, string> = { Ethereum: 'eth', Solana: 'sol', Tron: 'trx' };
+  const PROTOCOL_MIX = [0.3, 0.5, 0.2];
+  const mobileProtocols = protocols.map((p, i) => ({
+    symbol: PROTOCOL_TICKERS[p.name] ?? p.name.toLowerCase(),
+    name: p.name,
+    sub: p.sub,
+    apyPct: parseFloat(p.apy) || 0,
+    staked: totalActive * (PROTOCOL_MIX[i] ?? 0),
+  }));
+  // Est. annual yield = Σ (protocol stake × protocol APY).
+  const estAnnualYield = mobileProtocols.reduce((s, p) => s + p.staked * (p.apyPct / 100), 0);
+  const protocolsActive = totalActive > 0 ? protocols.length : 0;
+  // Portfolio cycle maturity: amount-weighted elapsed / term across holdings.
+  let wElapsed = 0;
+  let wTerm = 0;
+  let wAmt = 0;
+  activeInvestments.forEach((inv: any) => {
+    const amt = Number(inv?.amount) || 0;
+    const dur = Number(inv?.durationDays ?? inv?.duration) || 30;
+    const start = inv?.startDate ? new Date(inv.startDate) : inv?.createdAt ? new Date(inv.createdAt) : null;
+    const elapsed = start ? Math.max(0, (Date.now() - start.getTime()) / 86_400_000) : 0;
+    wElapsed += elapsed * amt;
+    wTerm += dur * amt;
+    wAmt += amt;
+  });
+  const maturityElapsedDays = wAmt > 0 ? wElapsed / wAmt : 0;
+  const maturityTotalDays = wAmt > 0 ? wTerm / wAmt : 30;
+  const mobileBonds = bonds.map((b) => ({
+    plan: b.plan,
+    tier: b.tier,
+    tierColor: b.tierColor,
+    roiPct: b.roiPct,
+    duration: b.duration,
+    icon: b.icon,
+  }));
+
   // Cycle maturity for a bond = elapsed time through the user's matching active
   // investment of that tier (by plan name or coupon ROI). 0 if none held.
   const bondProgress = (planKey: string, roiPct: number) => {
@@ -148,12 +191,14 @@ export default function StakePage() {
 
   return (
     <div className="flex min-h-screen text-[#F5F1EA] font-['Inter',_sans-serif]" style={{ background: '#06090F' }}>
-      <div className="luxe-ambient-orb" style={{ background: '#06B6D4', top: -200, right: -100 }} />
-      <div className="luxe-ambient-orb" style={{ background: '#A855F7', bottom: -200, left: -100 }} />
+      {/* Ambient orbs (Stitch ref) — desktop only; the mobile view carries its own tinted backdrop */}
+      <div className="luxe-ambient-orb hidden md:block" style={{ background: '#06B6D4', top: -200, right: -100 }} />
+      <div className="luxe-ambient-orb hidden md:block" style={{ background: '#A855F7', bottom: -200, left: -100 }} />
 
       <Sidebar />
 
-      <div className="flex-1 min-w-0 flex flex-col relative">
+      {/* ── DESKTOP composition (md+) — unchanged ── */}
+      <div className="hidden md:flex flex-1 min-w-0 flex-col relative">
         <header
           className="sticky top-0 z-30 h-16 flex justify-between items-center px-4 sm:px-6 border-b"
           style={{ background: 'rgba(6,9,15,0.65)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', borderColor: 'rgba(255,255,255,0.05)' }}
@@ -358,6 +403,28 @@ export default function StakePage() {
             )}
           </section>
         </main>
+      </div>
+
+      {/* ── MOBILE composition (< md) — mirrors the earn mobile mock ── */}
+      <div
+        className="md:hidden flex-1 min-w-0 flex flex-col relative"
+        style={{
+          background:
+            'radial-gradient(920px 640px at 88% -14%, rgba(168,85,247,0.13), transparent 62%), radial-gradient(780px 560px at -12% 112%, rgba(6,182,212,0.10), transparent 60%), #06090F',
+          minHeight: '100dvh',
+        }}
+      >
+        <MobileEarn
+          totalActive={totalActive}
+          estAnnualYield={estAnnualYield}
+          protocolsActive={protocolsActive}
+          maturityElapsedDays={maturityElapsedDays}
+          maturityTotalDays={maturityTotalDays}
+          protocols={mobileProtocols}
+          bonds={mobileBonds}
+          activities={dashboard?.recentActivities || []}
+          fmtCur={fmtCur}
+        />
       </div>
     </div>
   );

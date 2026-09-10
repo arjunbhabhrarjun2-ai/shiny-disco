@@ -13,9 +13,15 @@ type AccordionProps = {
   items: AccordionItem[];
   multiple?: boolean;
   className?: string;
+  /**
+   * Phone-friendly density (<768px only): tighter row padding/indentation,
+   * larger tap target and a flat content indent so long answers are not
+   * squeezed into a narrow column. No effect at sm/md and up.
+   */
+  mobileCompact?: boolean;
 };
 
-export default function Accordion({ items, multiple = false, className = "" }: AccordionProps) {
+export default function Accordion({ items, multiple = false, className = "", mobileCompact = false }: AccordionProps) {
   const [openIds, setOpenIds] = useState<(string | number)[]>([]);
   const headersRef = useRef<Array<HTMLButtonElement | null>>([]);
 
@@ -47,6 +53,29 @@ export default function Accordion({ items, multiple = false, className = "" }: A
   };
 
   const stepLabels = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10"];
+
+  /* Mobile-only density overrides — every value is restored at sm/md. */
+  const rowClass = mobileCompact
+    ? "w-full text-left px-5 sm:px-10 py-5 sm:py-8 min-h-[64px] flex items-center gap-3 sm:gap-6 justify-between transition-all duration-300 focus:outline-none"
+    : "w-full text-left px-6 sm:px-10 py-6 sm:py-8 flex items-center gap-6 justify-between transition-all duration-300 focus:outline-none";
+  const rowInnerClass = mobileCompact
+    ? "flex items-center gap-3 sm:gap-6 min-w-0"
+    : "flex items-center gap-6 min-w-0";
+  const numeralClass = mobileCompact
+    ? "font-serif-display flex-shrink-0 text-2xl sm:text-4xl tabular-nums transition-all duration-300"
+    : "font-serif-display flex-shrink-0 text-3xl sm:text-4xl tabular-nums transition-all duration-300";
+  const ruleClass = mobileCompact
+    ? "w-px h-6 sm:h-10 transition-all duration-300"
+    : "w-px h-10 transition-all duration-300";
+  const titleClass = mobileCompact
+    ? "font-serif-display text-base sm:text-xl md:text-2xl leading-snug transition-colors duration-300"
+    : "font-serif-display text-lg sm:text-xl md:text-2xl leading-snug transition-colors duration-300";
+  const toggleClass = mobileCompact
+    ? "flex-shrink-0 w-11 h-11 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all duration-300"
+    : "flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300";
+  const bodyClass = mobileCompact
+    ? "px-5 sm:px-10 sm:pl-[7.5rem] pb-6 sm:pb-8 pt-1 text-[15px] sm:text-base leading-relaxed"
+    : "px-6 sm:px-10 pl-[5.25rem] sm:pl-[7.5rem] pb-8 pt-1 text-sm sm:text-base leading-relaxed";
 
   return (
     <motion.div
@@ -82,7 +111,7 @@ export default function Accordion({ items, multiple = false, className = "" }: A
                   id={`head-${safeId}`}
                   onKeyDown={(e) => onHeaderKeyDown(e, idx, item.id)}
                   onClick={() => toggle(item.id)}
-                  className="w-full text-left px-6 sm:px-10 py-6 sm:py-8 flex items-center gap-6 justify-between transition-all duration-300 focus:outline-none"
+                  className={rowClass}
                   style={{
                     background: expanded ? 'rgba(212,175,127,0.04)' : 'transparent',
                     outline: 'none',
@@ -92,9 +121,9 @@ export default function Accordion({ items, multiple = false, className = "" }: A
                   onMouseEnter={(e) => { if (!expanded) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.02)'; }}
                   onMouseLeave={(e) => { if (!expanded) (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
                 >
-                  <div className="flex items-center gap-6 min-w-0">
+                  <div className={rowInnerClass}>
                     <span
-                      className="font-serif-display flex-shrink-0 text-3xl sm:text-4xl tabular-nums transition-all duration-300"
+                      className={numeralClass}
                       style={{
                         color: expanded ? '#D4AF7F' : 'rgba(212,175,127,0.45)',
                         lineHeight: 1,
@@ -104,11 +133,11 @@ export default function Accordion({ items, multiple = false, className = "" }: A
                       {stepLabels[idx] ?? String(idx + 1).padStart(2, "0")}
                     </span>
                     <span
-                      className="w-px h-10 transition-all duration-300"
+                      className={ruleClass}
                       style={{ background: expanded ? 'rgba(212,175,127,0.5)' : 'rgba(212,175,127,0.2)' }}
                     />
                     <span
-                      className="font-serif-display text-lg sm:text-xl md:text-2xl leading-snug transition-colors duration-300"
+                      className={titleClass}
                       style={{ color: expanded ? '#F5F1EA' : 'rgba(245,241,234,0.8)' }}
                     >
                       {item.title}
@@ -118,7 +147,7 @@ export default function Accordion({ items, multiple = false, className = "" }: A
                   <motion.div
                     animate={{ rotate: expanded ? 45 : 0 }}
                     transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                    className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300"
+                    className={toggleClass}
                     style={{
                       background: expanded ? 'rgba(212,175,127,0.15)' : 'rgba(255,255,255,0.04)',
                       border: expanded ? '1px solid rgba(212,175,127,0.4)' : '1px solid rgba(255,255,255,0.08)',
@@ -144,7 +173,7 @@ export default function Accordion({ items, multiple = false, className = "" }: A
                     className="overflow-hidden"
                   >
                     <div
-                      className="px-6 sm:px-10 pl-[5.25rem] sm:pl-[7.5rem] pb-8 pt-1 text-sm sm:text-base leading-relaxed"
+                      className={bodyClass}
                       style={{ color: '#A9B1C0' }}
                     >
                       {item.content}

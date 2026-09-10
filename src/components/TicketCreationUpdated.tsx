@@ -66,11 +66,11 @@ export default function TicketCreation({ onTicketCreated, onCancel }: TicketCrea
   };
 
   return (
-    <div className="bg-[#121528] rounded-lg p-6 shadow-lg">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-white">Create Support Ticket</h2>
+    <div className="bg-[#121528] rounded-lg p-4 sm:p-6 md:p-6 shadow-lg">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 mb-6 md:flex-nowrap">
+        <h2 className="text-xl sm:text-2xl font-bold text-white min-w-0">Create Support Ticket</h2>
         {onCancel && (
-          <button onClick={onCancel} className="text-gray-400 hover:text-white text-sm underline">
+          <button onClick={onCancel} className="inline-flex items-center justify-center text-sm text-gray-400 hover:text-white underline min-h-[44px] md:min-h-0">
             Cancel
           </button>
         )}
@@ -78,7 +78,7 @@ export default function TicketCreation({ onTicketCreated, onCancel }: TicketCrea
 
       {message && (
         <div
-          className={`mb-4 p-3 rounded ${
+          className={`mb-4 p-3 rounded text-[13px] sm:text-base ${
             message.includes('successfully') ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
           }`}
         >
@@ -86,7 +86,7 @@ export default function TicketCreation({ onTicketCreated, onCancel }: TicketCrea
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5 md:space-y-4">
         <div>
           <label htmlFor="subject" className="block text-sm font-medium text-gray-300 mb-1">
             Subject *
@@ -98,7 +98,7 @@ export default function TicketCreation({ onTicketCreated, onCancel }: TicketCrea
             value={formData.subject}
             onChange={handleChange}
             required
-            className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-3 md:py-2 bg-gray-700 border border-gray-600 rounded-md text-base md:text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Brief description of the issue"
           />
         </div>
@@ -114,7 +114,7 @@ export default function TicketCreation({ onTicketCreated, onCancel }: TicketCrea
             onChange={handleChange}
             required
             rows={4}
-            className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            className="w-full px-3 py-3 md:py-2 bg-gray-700 border border-gray-600 rounded-md text-base md:text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
             placeholder="Please provide detailed information about your issue..."
           />
         </div>
@@ -122,7 +122,7 @@ export default function TicketCreation({ onTicketCreated, onCancel }: TicketCrea
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2 px-4 rounded-md transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2 px-4 min-h-[48px] md:min-h-0 rounded-md transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           {isSubmitting ? 'Creating Ticket...' : 'Create Ticket'}
         </button>

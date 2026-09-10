@@ -55,8 +55,8 @@ const faqItems = [
 export default function FAQAccordion() {
   return (
     <div className="w-full">
-      <h2 className="text-3xl font-bold text-white text-center mb-8">Frequently Asked Questions</h2>
-      <Accordion items={faqItems} />
+      <h2 className="text-2xl sm:text-3xl font-bold text-white text-center mb-6 sm:mb-8">Frequently Asked Questions</h2>
+      <Accordion items={faqItems} mobileCompact />
     </div>
   );
 }

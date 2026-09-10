@@ -17,6 +17,7 @@ import CoinIcon from '@/components/CoinIcon';
 import Sidebar from '@/components/Sidebar';
 import Logo from '@/components/Logo';
 import SwapWidget from '@/components/wallet/SwapWidget';
+import MobileWallet, { type MobileBondRow } from '@/components/wallet/MobileWallet';
 import {
   FaBitcoin,
   FaEthereum,
@@ -116,14 +117,43 @@ export default function WalletPage() {
     .map((r) => ({ ...r, price: priceOf(r.sym), name: nameOf(r.sym), value: r.available * priceOf(r.sym) }))
     .sort((a, b) => b.value - a.value);
 
+  // ── Mobile-only aggregates (< md) — desktop markup/logic untouched ──
+  // Hero "Wallet balance" = Σ custody value; 24h delta = Σ value × ticker
+  // change24h (live), mirroring the mock hero which totals the asset rows.
+  const walletBalance = assetRows.reduce((s, r) => s + r.value, 0);
+  const pnl24h = assetRows.reduce((s, r) => {
+    const ch = tickers.find((t) => t.base === r.sym)?.change24h ?? 0;
+    return s + r.value * (ch / 100);
+  }, 0);
+  const pnl24hPct = walletBalance > 0 ? (pnl24h / walletBalance) * 100 : 0;
+
+  // Yield-bond rows for mobile — same normalization as the desktop bond table.
+  const bondRows: MobileBondRow[] = activeInv.slice(0, 6).map((inv) => {
+    const plan = getPlanByName(inv.planName);
+    const roiRate = inv.roi > 1.5 ? inv.roi / 100 : inv.roi; // stored as fraction
+    const principal = Number(inv.amount) || 0;
+    const days = Number(inv.durationDays ?? plan?.durationDays ?? 30) || 30;
+    return {
+      id: String(inv.id),
+      planName: inv.planName,
+      name: plan?.displayName || inv.planName,
+      principal,
+      roiPct: roiRate * 100,
+      days,
+      maturityValue: principal * (1 + roiRate),
+    };
+  });
+
   return (
     <div className="flex min-h-screen text-[#F5F1EA] font-['Inter',_sans-serif]" style={{ background: '#06090F' }}>
-      <div className="luxe-ambient-orb" style={{ background: '#A855F7', top: -200, left: -100 }} />
-      <div className="luxe-ambient-orb" style={{ background: '#06B6D4', bottom: -200, right: -100 }} />
+      {/* Ambient orbs — desktop only; mobile uses the k-shell backdrop */}
+      <div className="luxe-ambient-orb hidden md:block" style={{ background: '#A855F7', top: -200, left: -100 }} />
+      <div className="luxe-ambient-orb hidden md:block" style={{ background: '#06B6D4', bottom: -200, right: -100 }} />
 
       <Sidebar />
 
-      <div className="flex-1 min-w-0 flex flex-col relative">
+      {/* ── DESKTOP composition (md+) — unchanged ── */}
+      <div className="hidden md:flex flex-1 min-w-0 flex-col relative">
         <header
           className="sticky top-0 z-30 h-16 flex justify-between items-center px-4 sm:px-6 border-b"
           style={{ background: 'rgba(6,9,15,0.65)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', borderColor: 'rgba(255,255,255,0.05)' }}
@@ -264,6 +294,26 @@ export default function WalletPage() {
             </div>
           </section>
         </main>
+      </div>
+
+      {/* ── MOBILE composition (< md) — mirrors the mobile Wallet mock ── */}
+      <div
+        className="md:hidden flex-1 min-w-0 flex flex-col relative"
+        style={{
+          background:
+            'radial-gradient(920px 640px at 88% -14%, rgba(168,85,247,0.13), transparent 62%), radial-gradient(780px 560px at -12% 112%, rgba(6,182,212,0.10), transparent 60%), #06090F',
+          minHeight: '100dvh',
+        }}
+      >
+        <MobileWallet
+          userEmail={user?.email ?? ''}
+          assetRows={assetRows}
+          bonds={bondRows}
+          walletBalance={walletBalance}
+          pnl24h={pnl24h}
+          pnl24hPct={pnl24hPct}
+          onSwapped={() => mutate?.()}
+        />
       </div>
     </div>
   );

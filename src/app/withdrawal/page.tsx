@@ -21,6 +21,7 @@ import Sidebar from '@/components/Sidebar';
 import Logo from '@/components/Logo';
 import { formatWithCommas, unformat } from '@/lib/utils/formatAmount';
 import { authFetch } from '@/lib/clientAuth';
+import WireTransferPanel from '@/components/wire/WireTransferPanel';
 import {
   FaSearch,
   FaPowerOff,
@@ -33,6 +34,7 @@ import {
   FaExclamationTriangle,
   FaArrowUp,
   FaTimes,
+  FaUniversity,
 } from 'react-icons/fa';
 import { SiTether, SiSolana, SiRipple } from 'react-icons/si';
 import { AiOutlineLoading3Quarters } from 'react-icons/ai';
@@ -82,6 +84,8 @@ export default function WithdrawalPage() {
 
   /* ── New visual-only state ─────────────────────────────────── */
   const [network, setNetwork] = useState<string>('bitcoin');
+  // Payout method: crypto network transfer or bank wire (wire is arranged with support).
+  const [payoutMethod, setPayoutMethod] = useState<'crypto' | 'wire'>('crypto');
 
   /* ── Holdings: only let users withdraw assets they actually own ── */
   const { quote: usdtBal, holdings } = useHoldings();
@@ -267,6 +271,61 @@ export default function WithdrawalPage() {
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
               {/* ── Left: Form (col-span-2) ────────────────────── */}
               <div className="xl:col-span-2 luxe-glass-border rounded-2xl p-5 sm:p-8 space-y-8">
+                {/* Payout method — choose crypto network or bank wire */}
+                <div>
+                  <label className="text-[9px] uppercase font-black tracking-[0.3em] block mb-3" style={{ color: '#D4AF7F' }}>
+                    Payout Method
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setPayoutMethod('crypto')}
+                      className="p-4 rounded-lg flex items-center gap-3 transition-all text-left"
+                      style={
+                        payoutMethod === 'crypto'
+                          ? { background: 'rgba(212,175,127,0.08)', border: '1px solid rgba(212,175,127,0.5)', color: '#F5F1EA' }
+                          : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', color: 'rgba(245,241,234,0.7)' }
+                      }
+                    >
+                      <span className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ background: 'rgba(212,175,127,0.12)', color: '#D4AF7F' }}>
+                        <FaBitcoin size={14} />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block font-bold text-xs">Cryptocurrency</span>
+                        <span className="block text-[10px] uppercase tracking-tight" style={{ color: 'rgba(245,241,234,0.5)' }}>On-chain • network fee</span>
+                      </span>
+                      {payoutMethod === 'crypto' && <FaCheckCircle size={11} className="ml-auto shrink-0" style={{ color: '#D4AF7F' }} />}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setPayoutMethod('wire')}
+                      className="p-4 rounded-lg flex items-center gap-3 transition-all text-left"
+                      style={
+                        payoutMethod === 'wire'
+                          ? { background: 'rgba(212,175,127,0.08)', border: '1px solid rgba(212,175,127,0.5)', color: '#F5F1EA' }
+                          : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', color: 'rgba(245,241,234,0.7)' }
+                      }
+                    >
+                      <span className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ background: 'rgba(212,175,127,0.12)', color: '#D4AF7F' }}>
+                        <FaUniversity size={14} />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block font-bold text-xs">Wire transfer</span>
+                        <span className="block text-[10px] uppercase tracking-tight" style={{ color: 'rgba(245,241,234,0.5)' }}>Bank wire • 1 business day</span>
+                      </span>
+                      {payoutMethod === 'wire' && <FaCheckCircle size={11} className="ml-auto shrink-0" style={{ color: '#D4AF7F' }} />}
+                    </button>
+                  </div>
+                </div>
+
+                {payoutMethod === 'wire' ? (
+                  <WireTransferPanel
+                    mode="withdrawal"
+                    amountText={amount ? `${amount} ${currency}` : ''}
+                  />
+                ) : (
+                <>
                 {/* 01. Select Asset */}
                 <div>
                   <label className="text-[9px] uppercase font-black tracking-[0.3em] block mb-3" style={{ color: '#D4AF7F' }}>
@@ -427,6 +486,8 @@ export default function WithdrawalPage() {
                     </div>
                   </div>
                 </div>
+                </>
+                )}
               </div>
 
               {/* ── Right: Transaction Summary ──────────────────── */}
@@ -442,8 +503,12 @@ export default function WithdrawalPage() {
                         <span className="font-mono">{gross.toFixed(8)} {currency}</span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span style={{ color: '#8F9BB3' }}>Network Fee</span>
-                        <span className="font-mono" style={{ color: '#FF3D71' }}>− {fee.toFixed(8)} {currency}</span>
+                        <span style={{ color: '#8F9BB3' }}>{payoutMethod === 'wire' ? 'Wire fee' : 'Network Fee'}</span>
+                        {payoutMethod === 'wire' ? (
+                          <span className="font-mono" style={{ color: '#D4AF7F' }}>Arranged with support</span>
+                        ) : (
+                          <span className="font-mono" style={{ color: '#FF3D71' }}>− {fee.toFixed(8)} {currency}</span>
+                        )}
                       </div>
                       <div className="pt-3.5 flex justify-between items-end" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
                         <span className="font-bold uppercase text-xs tracking-widest">Total Receive</span>
@@ -456,7 +521,15 @@ export default function WithdrawalPage() {
                       </div>
                     </div>
 
-                    {/* Confirm CTA */}
+                    {/* Confirm CTA — crypto submits on-chain, wire is arranged with support */}
+                    {payoutMethod === 'wire' ? (
+                      <div
+                        className="w-full py-4 rounded-xl text-center text-[10px] font-bold uppercase tracking-widest"
+                        style={{ background: 'rgba(212,175,127,0.06)', border: '1px solid rgba(212,175,127,0.3)', color: '#D4AF7F' }}
+                      >
+                        Generate your wire account and contact support to complete this payout
+                      </div>
+                    ) : (
                     <button
                       onClick={handleWithdraw}
                       disabled={loading || !amount || !address}
@@ -471,6 +544,7 @@ export default function WithdrawalPage() {
                         'Confirm Withdrawal'
                       )}
                     </button>
+                    )}
 
                     {/* Security Checklist */}
                     <div className="p-4 rounded-xl space-y-2.5" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
@@ -478,8 +552,10 @@ export default function WithdrawalPage() {
                         <FaShieldAlt size={10} /> Security Checklist
                       </h4>
                       <div className="flex items-center gap-2.5 text-[11px]" style={{ color: '#8F9BB3' }}>
-                        <FaCheckCircle size={10} style={{ color: address ? '#06B6D4' : '#5A6578' }} />
-                        Address is {address ? 'whitelisted' : 'required'}
+                        <FaCheckCircle size={10} style={{ color: payoutMethod === 'wire' ? '#D4AF7F' : address ? '#06B6D4' : '#5A6578' }} />
+                        {payoutMethod === 'wire'
+                          ? 'Wire account generated by you — confirm with support'
+                          : `Address is ${address ? 'whitelisted' : 'required'}`}
                       </div>
                       {gross * (meta?.spotUsd || 0) > 50000 && (
                         <div className="flex items-center gap-2.5 text-[11px]" style={{ color: '#FFAA00' }}>

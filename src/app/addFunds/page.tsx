@@ -16,6 +16,7 @@ import Logo from '@/components/Logo';
 import { useAuth } from '@/components/context/AuthContext';
 import { useDeposits } from '@/lib/hooks/useDeposits';
 import { useTickers } from '@/lib/hooks/useTickers';
+import WireTransferPanel from '@/components/wire/WireTransferPanel';
 import { addFundsSchema } from '@/lib/validation';
 import { WALLETS } from '@/lib/config';
 import { formatWithCommas, unformat } from '@/lib/utils/formatAmount';
@@ -29,6 +30,7 @@ import {
   FaHistory,
   FaChevronRight,
   FaBitcoin,
+  FaUniversity,
 } from 'react-icons/fa';
 import { AiOutlineLoading3Quarters } from 'react-icons/ai';
 
@@ -43,6 +45,8 @@ export default function AddFundsPage() {
 
   /* ── Form state (preserved from original page) ───────────────── */
   const [selected, setSelected] = useState<any | null>(WALLETS[0]);
+  // Payment method: crypto deposit flow or the bank wire flow.
+  const [method, setMethod] = useState<'crypto' | 'wire'>('crypto');
   const [amount, setAmount] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [alertMsg, setAlertMsg] = useState<string | null>(null);
@@ -256,8 +260,12 @@ export default function AddFundsPage() {
                   <h3 className="font-mono text-[10px] uppercase tracking-widest px-4 py-3" style={{ color: '#5A6578' }}>Select Method</h3>
                   <button
                     type="button"
+                    onClick={() => setMethod('crypto')}
                     className="w-full text-left p-4 flex items-center gap-4 rounded-md group"
-                    style={{ background: '#1C2128', border: '1px solid #0095FF' }}
+                    style={{
+                      background: method === 'crypto' ? '#1C2128' : 'transparent',
+                      border: method === 'crypto' ? '1px solid #0095FF' : '1px solid transparent',
+                    }}
                   >
                     <div className="w-10 h-10 rounded flex items-center justify-center" style={{ background: 'rgba(0,149,255,0.10)', border: '1px solid rgba(0,149,255,0.30)', color: '#0095FF' }}>
                       <FaBitcoin size={16} />
@@ -266,7 +274,27 @@ export default function AddFundsPage() {
                       <p className="text-base font-semibold" style={{ color: '#dfe2eb' }}>Cryptocurrency</p>
                       <p className="text-[11px] uppercase tracking-tight" style={{ color: '#5A6578' }}>Instant • No Fees</p>
                     </div>
-                    <FaCheckCircle size={14} style={{ color: '#0095FF' }} />
+                    {method === 'crypto' && <FaCheckCircle size={14} style={{ color: '#0095FF' }} />}
+                  </button>
+
+                  {/* Wire transfer — bank wires are arranged with support */}
+                  <button
+                    type="button"
+                    onClick={() => setMethod('wire')}
+                    className="w-full text-left p-4 flex items-center gap-4 rounded-md group mt-1"
+                    style={{
+                      background: method === 'wire' ? '#1C2128' : 'transparent',
+                      border: method === 'wire' ? '1px solid #0095FF' : '1px solid transparent',
+                    }}
+                  >
+                    <div className="w-10 h-10 rounded flex items-center justify-center" style={{ background: 'rgba(0,149,255,0.10)', border: '1px solid rgba(0,149,255,0.30)', color: '#0095FF' }}>
+                      <FaUniversity size={15} />
+                    </div>
+                    <div className="flex-grow">
+                      <p className="text-base font-semibold" style={{ color: '#dfe2eb' }}>Wire transfer</p>
+                      <p className="text-[11px] uppercase tracking-tight" style={{ color: '#5A6578' }}>Bank wire • 1 business day</p>
+                    </div>
+                    {method === 'wire' && <FaCheckCircle size={14} style={{ color: '#0095FF' }} />}
                   </button>
                 </div>
 
@@ -315,6 +343,9 @@ export default function AddFundsPage() {
 
               {/* ── Right: Content Canvas ─────────────────────────── */}
               <div className="col-span-12 lg:col-span-8">
+                {method === 'wire' ? (
+                  <WireTransferPanel mode="deposit" amountText={amount ? `$${amount}` : ''} />
+                ) : (
                 <div className="rounded-lg overflow-hidden" style={{ background: '#151A21', border: '1px solid #404753' }}>
                   {/* Step header */}
                   <div className="p-6 flex items-center justify-between" style={{ borderBottom: '1px solid #404753' }}>
@@ -461,6 +492,7 @@ export default function AddFundsPage() {
                     </div>
                   </div>
                 </div>
+                )}
               </div>
             </form>
           </div>
