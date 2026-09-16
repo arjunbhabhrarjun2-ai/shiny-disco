@@ -272,3 +272,21 @@ model PushSubscription {
   auth      String
   createdAt DateTime @default(now())
 }
+
+// Support chat attachments. Vercel Blob is used when BLOB_READ_WRITE_TOKEN is
+// configured; without it (e.g. a deploy with no Blob store attached) the bytes
+// are kept here and streamed back through /api/support/attachment/<id>, so image
+// uploads work on any host with a database. `id` is a long random string and
+// acts as the capability in the URL (an <img> tag cannot send a bearer token).
+model SupportAttachment {
+  id          String   @id
+  userId      Int?
+  filename    String
+  contentType String
+  size        Int
+  data        Bytes
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
