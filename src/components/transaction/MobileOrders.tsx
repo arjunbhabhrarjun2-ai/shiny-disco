@@ -228,46 +228,60 @@ export default function MobileOrders({ rows, fmt, fmtUsd, onCancelWithdrawal }: 
                 }
                 const trailColor = row.kind === 'deposit' ? 'var(--mint)' : 'var(--down)';
 
-                const sub = `${whenLabel(row.ts)} · ${flowNote(row.kind, row.status)}`;
+                const sub = whenLabel(row.ts);
+                const note = flowNote(row.kind, row.status);
 
                 // Row body shared by the button (details) and div (pending wd) variants.
+                // Three stacked lines: header (mark · title/date · status badge),
+                // figures (amount · flow note) and progress/action. A one-line
+                // table row cannot hold a badge + a 6-figure amount + a title on
+                // a 320–390 px phone — the columns collapse and the text paints
+                // over its neighbours (see mobile-shell.css § 9b).
                 const body = (
                   <>
-                    {row.kind === 'investment' ? (
-                      <Emblem variant={emblem} />
-                    ) : (
-                      <CoinMark row={row} />
-                    )}
-                    <span className="k-row__main">
-                      <span className="k-row__title">{rowTitle(row)}</span>
-                      <span className="k-row__sub num">{sub}</span>
+                    <span className="k-txn">
+                      {row.kind === 'investment' ? (
+                        <Emblem variant={emblem} />
+                      ) : (
+                        <CoinMark row={row} />
+                      )}
+                      <span className="k-txn__main">
+                        <span className="k-txn__title">{rowTitle(row)}</span>
+                        <span className="k-row__sub num">{sub}</span>
+                      </span>
+                      <span className={pillClass(row.status)}>{row.status}</span>
                     </span>
-                    <span className="k-row__trail">
-                      <span className="num" style={{ color: trailColor }}>{trailMain}</span>
-                      <small>{trailSub}</small>
+
+                    <span className="k-txn__meta">
+                      <span className="k-txn__amount">
+                        <span className="num" style={{ color: trailColor }}>{trailMain}</span>
+                        <small>{trailSub}</small>
+                      </span>
+                      <span className="k-txn__note" title={note}>{note}</span>
                     </span>
-                    <span className={pillClass(row.status)}>{row.status}</span>
                   </>
                 );
 
                 return (
                   <li key={row.id} data-kind={row.kind === 'withdrawal' ? 'withdraw' : row.kind} data-state={row.status.toLowerCase()}>
                     {isPendingWd ? (
-                      <div className="k-row" style={{ paddingBottom: 8 }}>
-                        {body}
-                      </div>
+                      <div className="k-row k-row--stack">{body}</div>
                     ) : (
-                      <button type="button" className="k-row" onClick={() => goDetails(row)}>
+                      <button type="button" className="k-row k-row--stack" onClick={() => goDetails(row)}>
                         {body}
                       </button>
                     )}
 
-                    {/* Progress (pending / partial) + Cancel for pending withdrawals */}
+                    {/* Progress (pending / partial) + Cancel for pending withdrawals — on its
+                        own full-width line so neither the bar nor the button squeezes the row. */}
                     {showProgress && (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '0 14px 12px 67px' }}>
-                        <div className="k-progress" style={{ flex: 1 }} aria-hidden>
+                      <div className="k-txn__bar" style={{ margin: '0 14px 12px' }}>
+                        <div className="k-progress" aria-hidden>
                           <i style={{ width: `${Math.min(100, Math.max(0, row.fillPct))}%` }} />
                         </div>
+                        <span className="k-txn__note">
+                          {isPendingWd ? `${Math.round(row.fillPct)}% processed` : `${Math.round(row.fillPct)}%`}
+                        </span>
                         {isPendingWd && (
                           <button type="button" className="k-btn k-btn--ghost k-btn--sm" onClick={onCancelWithdrawal}>
                             Cancel

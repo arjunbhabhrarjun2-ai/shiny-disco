@@ -57,11 +57,12 @@ export interface MobileEarnProps {
 const ATRIUM_URL = process.env.NEXT_PUBLIC_ATRIUM_URL || 'http://localhost:3001';
 const ATRIUM_KEY = process.env.NEXT_PUBLIC_ATRIUM_KEY || 'atrium-staking';
 
-/* Presentational copy/tone from the mock, keyed to the live protocol rows. */
+/* Presentational copy/tone from the mock, keyed to the live protocol rows.
+   Kept short enough to survive a 320 px phone without being ellipsized. */
 const PROTOCOL_SCHEDULE: Record<string, string> = {
-  eth: 'Liquid · daily yield stream',
-  sol: 'Fixed 32.2% · 21-day epoch · rewards 2.5d',
-  trx: 'Base 8.4% · flexible · hourly rewards',
+  eth: 'Liquid · daily yield',
+  sol: 'Fixed 32.2% · 21-day epoch',
+  trx: 'Base 8.4% · hourly rewards',
 };
 const PROTOCOL_APY_TONE: Record<string, string> = {
   eth: 'var(--accent-soft)',
@@ -149,6 +150,9 @@ function describeActivity(a: any): ActivityRowSpec {
   const paid = { text: 'Paid', cls: 'k-pill--ok' };
   const pending = { text: 'Pending', cls: 'k-pill--pending' };
   const sign = amount < 0 ? '-' : '+';
+  // The sub-line carries only the timestamp: the row title already names the
+  // kind of movement, and longer sentences were being ellipsized on a 320 px
+  // phone (the amount line below carries the "Yield"/"Principal" caption).
   switch (type) {
     case 'roi':
     case 'interest':
@@ -156,7 +160,7 @@ function describeActivity(a: any): ActivityRowSpec {
       return {
         glyph: 'reward',
         title: type === 'interest' ? 'Interest credit' : 'Staking reward',
-        sub: `${ts} · Reward stream`,
+        sub: ts,
         sign,
         amountColor: 'var(--up)',
         small: 'Yield',
@@ -169,16 +173,16 @@ function describeActivity(a: any): ActivityRowSpec {
       return {
         glyph: 'bond',
         title: 'Bond cycle',
-        sub: `${ts} · 30-day term`,
+        sub: ts,
         sign: '-',
         small: 'Principal',
         pill: { text: 'Running', cls: 'k-pill--neutral' },
       };
     case 'deposit':
-      return { glyph: 'deposit', title: 'Deposit', sub: `${ts} · Funds added`, sign, small: 'Credit', pill: success ? paid : pending };
+      return { glyph: 'deposit', title: 'Deposit', sub: ts, sign, small: 'Credit', pill: success ? paid : pending };
     case 'withdrawal':
     case 'withdraw':
-      return { glyph: 'withdrawal', title: 'Withdrawal', sub: `${ts} · Outgoing transfer`, sign: '-', small: 'Debit', pill: success ? paid : pending };
+      return { glyph: 'withdrawal', title: 'Withdrawal', sub: ts, sign: '-', small: 'Debit', pill: success ? paid : pending };
     default: {
       const title = typeof a?.description === 'string' && a.description ? a.description : 'Activity';
       return { glyph: 'other', title, sub: ts, sign, small: '', pill: success ? paid : pending };
@@ -267,59 +271,31 @@ export default function MobileEarn({
                   style={{ display: 'block', width: '100%', textAlign: 'left', cursor: 'pointer' }}
                 >
                   {/* Header: coin + protocol name + schedule */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div className="k-txn">
                     <span className="k-logo" style={{ overflow: 'hidden', flex: '0 0 auto' }} aria-hidden>
                       <CoinIcon symbol={p.symbol} size={40} />
                     </span>
-                    <span style={{ flex: 1, minWidth: 0 }}>
-                      <span className="k-row__title" style={{ display: 'block' }}>
+                    <span className="k-txn__main">
+                      <span className="k-txn__title">
                         {p.name} · {p.sub}
                       </span>
-                      <span className="k-row__sub" style={{ display: 'block', whiteSpace: 'normal' }}>
+                      <span className="k-row__sub">
                         {PROTOCOL_SCHEDULE[p.symbol] ?? `${p.apyPct.toFixed(1)}% APY schedule`}
                       </span>
                     </span>
                   </div>
 
-                  {/* Figures on their own row */}
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-                      gap: 10,
-                      marginTop: 13,
-                      paddingTop: 12,
-                      borderTop: '1px solid var(--line-soft)',
-                    }}
-                  >
-                    <div style={{ minWidth: 0 }}>
-                      <span
-                        style={{
-                          display: 'block', fontSize: 9.5, fontWeight: 700, letterSpacing: '0.1em',
-                          textTransform: 'uppercase', color: 'var(--fg-3)', marginBottom: 3,
-                        }}
-                      >
-                        Staked
-                      </span>
-                      <span className="num" style={{ display: 'block', fontSize: 13.5, fontWeight: 700, whiteSpace: 'nowrap' }}>
-                        {fmtCur(p.staked)}
-                      </span>
+                  {/* Figures — auto-fit grid keeps both values readable */}
+                  <div className="k-figs">
+                    <div className="k-fig">
+                      <span className="k-fig__label">Staked</span>
+                      <span className="k-fig__value num">{fmtCur(p.staked)}</span>
                     </div>
-                    <div style={{ minWidth: 0, textAlign: 'right' }}>
+                    <div className="k-fig k-fig--end">
+                      <span className="k-fig__label">APY</span>
                       <span
-                        style={{
-                          display: 'block', fontSize: 9.5, fontWeight: 700, letterSpacing: '0.1em',
-                          textTransform: 'uppercase', color: 'var(--fg-3)', marginBottom: 3,
-                        }}
-                      >
-                        APY
-                      </span>
-                      <span
-                        className="num"
-                        style={{
-                          display: 'block', fontSize: 13.5, fontWeight: 700, whiteSpace: 'nowrap',
-                          color: PROTOCOL_APY_TONE[p.symbol] ?? 'var(--fg)',
-                        }}
+                        className="k-fig__value num"
+                        style={{ color: PROTOCOL_APY_TONE[p.symbol] ?? 'var(--fg)' }}
                       >
                         {p.apyPct.toFixed(1)}%
                       </span>
@@ -363,13 +339,16 @@ export default function MobileEarn({
                 }}
               >
                 <span aria-hidden style={{ position: 'absolute', inset: '0 0 auto 0', height: 3, background: s.strip }} />
-                {s.popular && (
-                  <span className="k-pill k-pill--up" style={{ position: 'absolute', top: 12, right: 14 }}>
-                    Popular
+                {/* Header row: the "Popular" badge sits in the flow (it used to be
+                    absolutely positioned and painted over the title on narrow
+                    phones); the label truncates instead. */}
+                <span style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+                  <span className="eyebrow" style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {/* The badge already says "Popular" — repeating it in the label
+                        only pushed the label into an ellipsis on narrow phones. */}
+                    {s.popular ? name : `${name} · ${tag}`}
                   </span>
-                )}
-                <span className="eyebrow">
-                  {name} · {tag}
+                  {s.popular && <span className="k-pill k-pill--up" style={{ marginLeft: 'auto' }}>Popular</span>}
                 </span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 12 }}>
                   <span className={`k-emblem ${s.emblem}`} aria-hidden>
@@ -429,45 +408,28 @@ export default function MobileEarn({
                       style={{ display: 'block', width: '100%', textAlign: 'left', cursor: 'pointer' }}
                     >
                       {/* Header: glyph + title + status pill */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div className="k-txn">
                         <ActivityGlyph kind={row.glyph} />
-                        <span style={{ flex: 1, minWidth: 0 }}>
-                          <span className="k-row__title" style={{ display: 'block' }}>{row.title}</span>
-                          <span className="k-row__sub num" style={{ display: 'block', whiteSpace: 'normal' }}>{row.sub}</span>
+                        <span className="k-txn__main">
+                          <span className="k-txn__title">{row.title}</span>
+                          <span className="k-row__sub num">{row.sub}</span>
                         </span>
-                        <span className={`k-pill ${row.pill.cls}`} style={{ flex: '0 0 auto' }}>
-                          {row.pill.text}
-                        </span>
+                        <span className={`k-pill ${row.pill.cls}`}>{row.pill.text}</span>
                       </div>
 
-                      {/* Amount on its own row */}
-                      <div
-                        style={{
-                          display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 10,
-                          marginTop: 13, paddingTop: 12, borderTop: '1px solid var(--line-soft)',
-                        }}
-                      >
-                        <span
-                          style={{
-                            fontSize: 9.5, fontWeight: 700, letterSpacing: '0.1em',
-                            textTransform: 'uppercase', color: 'var(--fg-3)',
-                          }}
-                        >
-                          Amount
-                        </span>
-                        <span style={{ textAlign: 'right', minWidth: 0 }}>
+                      {/* Amount line — label left, value right; the value keeps its
+                          own width so it can never be squeezed into the label. */}
+                      <div className="k-txn__meta">
+                        <span className="k-fig__label" style={{ marginBottom: 0 }}>Amount</span>
+                        <span className="k-txn__amount" style={{ textAlign: 'right' }}>
                           <span
                             className="num"
-                            style={{ display: 'block', fontSize: 13.5, fontWeight: 700, ...(row.amountColor ? { color: row.amountColor } : {}) }}
+                            style={row.amountColor ? { color: row.amountColor } : undefined}
                           >
                             {row.sign}
                             {fmtCur(Math.abs(Number(a?.amount) || 0))}
                           </span>
-                          {row.small && (
-                            <span style={{ display: 'block', fontSize: 11.5, color: 'var(--fg-3)', marginTop: 2 }}>
-                              {row.small}
-                            </span>
-                          )}
+                          {row.small && <small>{row.small}</small>}
                         </span>
                       </div>
                     </button>

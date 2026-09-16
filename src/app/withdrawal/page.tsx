@@ -22,6 +22,7 @@ import Logo from '@/components/Logo';
 import { formatWithCommas, unformat } from '@/lib/utils/formatAmount';
 import { authFetch } from '@/lib/clientAuth';
 import WireTransferPanel from '@/components/wire/WireTransferPanel';
+import TransactionSubmittedModal, { type SubmittedDetail } from '@/components/TransactionSubmittedModal';
 import {
   FaSearch,
   FaPowerOff,
@@ -70,6 +71,18 @@ const NETWORKS: Record<string, { id: string; name: string; sub: string; fee: num
   XRP: [{ id: 'xrp', name: 'XRP Ledger', sub: 'Native Network', fee: 0.00001, eta: '<1m' }],
 };
 
+/* Space the address input must keep clear for the "Whitelisted" chip
+   (icon + 9px uppercase label + tracking + 2×0.5rem padding + right offset). */
+const WHITELIST_CHIP_SPACE = 128;
+
+/* Fractional precision accepted per asset — keeps the amount field from
+   accepting precision the asset cannot settle. */
+const AMOUNT_DECIMALS: Record<string, number> = { USDT: 2, USDC: 2, XRP: 2, SOL: 4, ETH: 8, BTC: 8 };
+
+/** "0x82c4…4cEa" — keeps a full hash readable inside the confirmation modal. */
+const shortAddress = (a: string) =>
+  a.length > 22 ? `${a.slice(0, 10)}…${a.slice(-8)}` : a;
+
 export default function WithdrawalPage() {
   const { user, isLoading: authLoading, logout } = useAuth();
   const router = useRouter();
@@ -81,6 +94,15 @@ export default function WithdrawalPage() {
   const [address, setAddress] = useState('');
   const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState<{ type: 'success' | 'error' | 'warning'; message: string } | null>(null);
+  /* Set when the API accepts the request — renders the acknowledgement modal,
+     whose Okay button returns the user to the dashboard. */
+  const [submitted, setSubmitted] = useState<{
+    amount: number;
+    currency: string;
+    address: string;
+    network: string;
+    reference?: string;
+  } | null>(null);
 
   /* ── New visual-only state ─────────────────────────────────── */
   const [network, setNetwork] = useState<string>('bitcoin');
@@ -180,10 +202,18 @@ export default function WithdrawalPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      const data: { success?: boolean; message?: string } = await res.json();
+      const data: { success?: boolean; message?: string; transactionRef?: string } = await res.json();
       if (res.ok && data.success) {
-        showAlert('success', 'Withdrawal submitted successfully.');
-        setTimeout(() => { window.location.href = '/withdrawalHistory'; }, 2000);
+        // The request is accepted but the money has not moved: acknowledge it
+        // explicitly (Okay → dashboard) instead of a toast that vanishes.
+        setAlert(null);
+        setSubmitted({
+          amount: numericAmount,
+          currency,
+          address,
+          network: selectedNet?.name || network,
+          reference: data.transactionRef,
+        });
       } else {
         showAlert('error', data.message || "We couldn't process your withdrawal. Please check your balance and try again.");
       }
@@ -401,11 +431,18 @@ export default function WithdrawalPage() {
                       onChange={(e) => setAddress(e.target.value)}
                       placeholder={`Enter ${currency} withdrawal address`}
                       className="w-full bg-black/40 border rounded-xl px-4 py-3.5 text-sm font-mono focus:outline-none transition-colors"
-                      style={{ borderColor: address ? 'rgba(0,229,255,0.32)' : 'rgba(255,255,255,0.10)', color: '#F5F1EA' }}
+                      style={{
+                        borderColor: address ? 'rgba(0,229,255,0.32)' : 'rgba(255,255,255,0.10)',
+                        color: '#F5F1EA',
+                        // Reserve room for the "Whitelisted" chip: without it a long
+                        // hex address is painted straight underneath the chip.
+                        paddingRight: address ? WHITELIST_CHIP_SPACE : undefined,
+                      }}
                     />
                     {address && (
                       <span
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded flex items-center gap-1"
+                        aria-hidden
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded flex items-center gap-1 pointer-events-none"
                         style={{ background: 'rgba(6,182,212,0.10)', border: '1px solid rgba(6,182,212,0.25)', color: '#06B6D4' }}
                       >
                         <FaShieldAlt size={9} /> Whitelisted
@@ -466,7 +503,7 @@ export default function WithdrawalPage() {
                       value={amount}
                       onChange={(e) => {
                         const cursor = e.target.selectionStart ?? e.target.value.length;
-                        const { formatted } = formatWithCommas(e.target.value, cursor);
+                        const { formatted } = formatWithCommas(e.target.value, cursor, AMOUNT_DECIMALS[currency] ?? 8);
                         setAmount(formatted);
                       }}
                       className="w-full bg-black/40 border rounded-xl px-5 py-5 text-2xl font-bold tracking-tight focus:outline-none pr-32 sm:pr-40"
@@ -475,7 +512,13 @@ export default function WithdrawalPage() {
                     <div className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 flex items-center gap-2 sm:gap-3">
                       <button
                         type="button"
-                        onClick={() => setAmount('1.0')}
+                        onClick={() => {
+                          // "Max" = the balance actually available, trimmed to the
+                          // asset's precision (it used to insert a hard-coded 1.0).
+                          const d = AMOUNT_DECIMALS[currency] ?? 8;
+                          const max = Math.floor(availableBalance * 10 ** d) / 10 ** d;
+                          setAmount(String(max));
+                        }}
                         className="px-3 py-1.5 rounded font-black text-[10px] uppercase tracking-widest hover:bg-white/20 transition-colors"
                         style={{ background: 'rgba(255,255,255,0.10)', color: '#F5F1EA' }}
                       >
@@ -628,6 +671,29 @@ export default function WithdrawalPage() {
           </div>
         </main>
       </div>
+
+      {/* Submission acknowledgement — Okay returns to the dashboard. */}
+      <TransactionSubmittedModal
+        open={!!submitted}
+        title="Withdrawal submitted"
+        message="Your withdrawal request has been received and is now pending review. You'll be notified once it has been processed."
+        details={
+          (submitted
+            ? ([
+                { label: 'Amount', value: `${submitted.amount.toLocaleString('en-US', { maximumFractionDigits: 8 })} ${submitted.currency}`, mono: true },
+                { label: 'Network', value: submitted.network },
+                { label: 'Destination', value: shortAddress(submitted.address), mono: true },
+                submitted.reference ? { label: 'Reference', value: submitted.reference.slice(0, 18), mono: true } : null,
+                { label: 'Status', value: 'Pending review' },
+              ].filter(Boolean) as SubmittedDetail[])
+            : [])
+        }
+        footnote="Track its progress any time from Orders & transactions."
+        onClose={() => {
+          setSubmitted(null);
+          router.push('/dashboard');
+        }}
+      />
     </div>
   );
 }

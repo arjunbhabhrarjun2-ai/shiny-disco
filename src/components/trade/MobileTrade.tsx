@@ -344,11 +344,16 @@ function CandleChart({
                   />
                 ))}
                 <g fontSize={axisFont} className="num" style={{ fill: 'var(--fg-3)' }}>
-                  {plot.ticks.map((t, i) => (
-                    <text key={`p${i}`} x={CHART_PAD.left + plot.plotW + 8} y={t.y + 3.6}>
-                      {t.label}
-                    </text>
-                  ))}
+                  {plot.ticks.map((t, i) =>
+                    // The live-price tag is painted on the same axis row; a tick
+                    // label underneath it would show as text-on-text, so that
+                    // tick's label steps aside (the gridline stays).
+                    Math.abs(t.y - plot.lastY) < 19 ? null : (
+                      <text key={`p${i}`} x={CHART_PAD.left + plot.plotW + 8} y={t.y + 3.6}>
+                        {t.label}
+                      </text>
+                    ),
+                  )}
                 </g>
               </g>
 

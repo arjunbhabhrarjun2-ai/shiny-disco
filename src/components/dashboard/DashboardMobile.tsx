@@ -182,7 +182,7 @@ export default function DashboardMobile({
                     style={{ display: 'block', width: '100%', textAlign: 'left' }}
                   >
                     {/* Header: emblem + name + days, chevron */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div className="k-txn">
                       <span className={`k-emblem ${emblem}`} style={{ flex: '0 0 auto' }}>
                         {i % 3 === 1 ? (
                           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden>
@@ -198,10 +198,10 @@ export default function DashboardMobile({
                           </svg>
                         )}
                       </span>
-                      <span style={{ flex: 1, minWidth: 0 }}>
-                        <span className="k-row__title" style={{ display: 'block' }}>{p.tier}</span>
-                        <span className="k-row__sub num" style={{ display: 'block', whiteSpace: 'normal' }}>
-                          {p.daysElapsed} of {p.daysTotal} days elapsed
+                      <span className="k-txn__main">
+                        <span className="k-txn__title">{p.tier}</span>
+                        <span className="k-row__sub num">
+                          {Math.round(p.daysElapsed)} of {p.daysTotal} days elapsed
                         </span>
                       </span>
                       <svg className="k-row__chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
@@ -209,54 +209,30 @@ export default function DashboardMobile({
                       </svg>
                     </div>
 
-                    {/* Figures — given their own row so nothing gets squeezed */}
-                    <div
-                      style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-                        gap: 10,
-                        marginTop: 13,
-                        paddingTop: 12,
-                        borderTop: '1px solid var(--line-soft)',
-                      }}
-                    >
+                    {/* Figures — auto-fit grid: 3-up on a wide phone, 2-up when
+                        the amounts would otherwise be squeezed into slivers */}
+                    <div className="k-figs">
                       {[
                         { label: 'Invested', value: fmtCur(p.principal), color: 'var(--fg)' },
-                        { label: 'Value', value: fmtCur(p.principal + p.accrued), color: 'var(--fg)' },
+                        { label: 'Value', value: fmtCur(p.principal + p.accrued), color: 'var(--fg)', end: true },
                         { label: 'Profit', value: `+${fmtCur(p.accrued)}`, color: 'var(--up)' },
+                        { label: 'ROI', value: `${p.roiPct.toFixed(1)}%`, color: 'var(--fg-2)', end: true },
                       ].map((m) => (
-                        <div key={m.label} style={{ minWidth: 0 }}>
-                          <span
-                            style={{
-                              display: 'block',
-                              fontSize: 9.5,
-                              fontWeight: 700,
-                              letterSpacing: '0.1em',
-                              textTransform: 'uppercase',
-                              color: 'var(--fg-3)',
-                              marginBottom: 3,
-                            }}
-                          >
-                            {m.label}
-                          </span>
-                          <span
-                            className="num"
-                            style={{ display: 'block', fontSize: 13.5, fontWeight: 700, color: m.color, whiteSpace: 'nowrap' }}
-                          >
+                        <div key={m.label} className={m.end ? 'k-fig k-fig--end' : 'k-fig'}>
+                          <span className="k-fig__label">{m.label}</span>
+                          <span className="k-fig__value num" style={{ color: m.color }}>
                             {m.value}
                           </span>
                         </div>
                       ))}
                     </div>
 
-                    {/* Progress + ROI */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 12 }}>
-                      <div className="k-progress k-progress--gold" style={{ flex: 1 }} aria-hidden>
+                    {/* Progress */}
+                    <div className="k-txn__bar">
+                      <div className="k-progress k-progress--gold" aria-hidden>
                         <i style={{ width: `${p.progress}%` }} />
                       </div>
-                      <span className="num" style={{ fontSize: 11, color: 'var(--fg-3)', whiteSpace: 'nowrap' }}>
-                        {p.progress}% · ROI {p.roiPct.toFixed(1)}%
-                      </span>
+                      <span className="num">{p.progress}% elapsed</span>
                     </div>
                   </button>
                 </li>
@@ -301,69 +277,43 @@ export default function DashboardMobile({
                     style={{ display: 'block', width: '100%', textAlign: 'left' }}
                   >
                     {/* Header: coin + type + status pill */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div className="k-txn">
                       <span className="k-emblem" style={{ background: `${coin}26`, color: coin, flex: '0 0 auto' }}>
                         <span style={{ fontSize: 13, fontWeight: 800 }}>{base.charAt(0)}</span>
                       </span>
-                      <span style={{ flex: 1, minWidth: 0 }}>
-                        <span className="k-row__title" style={{ display: 'block' }}>
+                      <span className="k-txn__main">
+                        <span className="k-txn__title">
                           {base} {isDeposit ? 'Deposit' : 'Withdraw'}
                         </span>
-                        <span className="k-row__sub" style={{ display: 'block', whiteSpace: 'normal' }}>
-                          {isDeposit ? `Confirmations ${confirms} / 3` : 'Network review in progress'}
+                        <span className="k-row__sub">
+                          {isDeposit ? 'Incoming transfer' : 'Outgoing transfer'}
                         </span>
                       </span>
-                      <span className="k-pill k-pill--pending" style={{ flex: '0 0 auto' }}>Pending</span>
+                      <span className="k-pill k-pill--pending">Pending</span>
                     </div>
 
-                    {/* Figures on their own row */}
-                    <div
-                      style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-                        gap: 10,
-                        marginTop: 13,
-                        paddingTop: 12,
-                        borderTop: '1px solid var(--line-soft)',
-                      }}
-                    >
-                      <div style={{ minWidth: 0 }}>
+                    {/* Figures on their own line */}
+                    <div className="k-figs">
+                      <div className="k-fig">
+                        <span className="k-fig__label">Amount</span>
                         <span
-                          style={{
-                            display: 'block', fontSize: 9.5, fontWeight: 700, letterSpacing: '0.1em',
-                            textTransform: 'uppercase', color: 'var(--fg-3)', marginBottom: 3,
-                          }}
-                        >
-                          Amount
-                        </span>
-                        <span
-                          className="num"
-                          style={{
-                            display: 'block', fontSize: 13.5, fontWeight: 700, whiteSpace: 'nowrap',
-                            color: isDeposit ? 'var(--mint)' : 'var(--down)',
-                          }}
+                          className="k-fig__value num"
+                          style={{ color: isDeposit ? 'var(--mint)' : 'var(--down)' }}
                         >
                           {isDeposit ? '+' : '−'}{fmt(o.size, base === 'USDT' ? 2 : 4)} {base}
                         </span>
                       </div>
-                      <div style={{ minWidth: 0, textAlign: 'right' }}>
-                        <span
-                          style={{
-                            display: 'block', fontSize: 9.5, fontWeight: 700, letterSpacing: '0.1em',
-                            textTransform: 'uppercase', color: 'var(--fg-3)', marginBottom: 3,
-                          }}
-                        >
-                          Value
-                        </span>
-                        <span className="num" style={{ display: 'block', fontSize: 13.5, fontWeight: 700, whiteSpace: 'nowrap' }}>
+                      <div className="k-fig k-fig--end">
+                        <span className="k-fig__label">Value</span>
+                        <span className="k-fig__value num">
                           {approxUsd > 0 ? `≈ ${fmtCur(approxUsd)}` : '—'}
                         </span>
                       </div>
                     </div>
 
                     {/* Progress + status detail */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 12 }}>
-                      <div className="k-progress" style={{ flex: 1 }} aria-hidden>
+                    <div className="k-txn__bar">
+                      <div className="k-progress" aria-hidden>
                         <i
                           style={{
                             width: `${o.progress}%`,
@@ -373,7 +323,7 @@ export default function DashboardMobile({
                           }}
                         />
                       </div>
-                      <span className="num" style={{ fontSize: 11, color: 'var(--fg-3)', whiteSpace: 'nowrap' }}>
+                      <span className="num">
                         {isDeposit ? `${confirms} of 3 confirmations` : 'In review'}
                       </span>
                     </div>

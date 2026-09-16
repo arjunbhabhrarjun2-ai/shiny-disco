@@ -354,13 +354,24 @@ button.k-row:active { background: oklch(0.959 0.010 81.8 / 0.055); }
   border-radius: 50%;
   font-size: 13px; font-weight: 750;
 }
-.k-row__main { flex: 1; min-width: 0; }
-.k-row__title { font-size: 14.5px; font-weight: 650; letter-spacing: -0.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.k-row__sub { font-size: 12px; color: var(--fg-3); margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.k-row__trail { flex: 0 0 auto; text-align: right; }
-.k-row__trail .num { font-size: 14px; font-weight: 700; }
-.k-row__trail small { display: block; font-size: 12px; color: var(--fg-3); margin-top: 1px; }
-.k-row__chev { color: var(--fg-faint); margin-left: 2px; }
+/* The text column clips itself: without this the spans below are inline, so
+   `overflow: hidden` / `text-overflow: ellipsis` are no-ops and long values
+   paint straight over the amount, the date and the status badge beside them. */
+.k-row__main { flex: 1 1 auto; min-width: 0; overflow: hidden; }
+.k-row__title {
+  display: block; max-width: 100%;
+  font-size: 14.5px; font-weight: 650; letter-spacing: -0.01em;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.k-row__sub {
+  display: block; max-width: 100%;
+  font-size: 12px; color: var(--fg-3); margin-top: 1px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.k-row__trail { flex: 0 0 auto; min-width: 0; text-align: right; }
+.k-row__trail .num { display: block; font-size: 14px; font-weight: 700; white-space: nowrap; }
+.k-row__trail small { display: block; font-size: 12px; color: var(--fg-3); margin-top: 1px; white-space: nowrap; }
+.k-row__chev { color: var(--fg-faint); margin-left: 2px; flex: 0 0 auto; }
 
 /* Real coin logos — localized copies of the cryptocurrency-icons set the
    production CoinIcon component loads (assets/*.svg). */
@@ -411,6 +422,10 @@ button.k-row:active { background: oklch(0.959 0.010 81.8 / 0.055); }
   border-radius: 999px;
   font-size: 11px; font-weight: 700;
   letter-spacing: 0.04em;
+  /* A badge is never the thing that gets squeezed — it keeps its box and the
+     text column next to it truncates instead. */
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 .k-pill::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
 .k-pill--ok   { background: color-mix(in oklch, var(--mint) 14%, transparent); color: var(--mint); }
@@ -431,6 +446,76 @@ button.k-row:active { background: oklch(0.959 0.010 81.8 / 0.055); }
 .k-progress > i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--up-2), var(--up)); }
 .k-progress--gold > i { background: linear-gradient(90deg, var(--accent-deep), var(--accent)); }
 .k-progress--pri > i { background: var(--pri-grad); }
+
+/* ── 9b · Phone-safe stacked row composition ───────────────────────────
+   The mocks draw one-line table rows (mark · title · amount · badge). At
+   320–390 px that row has no room left for the title column: the amount and
+   badge keep their intrinsic width, the middle column collapses, and any text
+   that cannot shrink paints over its neighbours. These classes split the row
+   into up to three stacked lines instead:
+
+     .k-row--stack   the row box (block, so each line spans the full width)
+     .k-txn          line 1 — mark + title/sub + badge
+     .k-txn__meta    line 2 — amount (+ its caption) on the left, note on the right
+     .k-txn__bar     line 3 — progress bar + its label / action button
+     .k-figs         figure grid — auto-fits 2–3 columns, never squeezes
+
+   Every text box clips itself (ellipsis) and every badge, amount and button is
+   flex: 0 0 auto, so lines can grow taller on a narrow phone but nothing can
+   ever overlap anything else.                                                */
+.k-row--stack { display: block; padding: 13px 14px 14px; }
+.k-row--stack + .k-row--stack { margin-top: 0; }
+.k-txn { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.k-txn__main { flex: 1 1 auto; min-width: 0; }
+.k-txn__title {
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 14.5px; font-weight: 650; letter-spacing: -0.01em; line-height: 1.32;
+}
+.k-txn__meta {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  min-width: 0;
+  margin-top: 11px; padding-top: 11px;
+  border-top: 1px solid var(--line-soft);
+}
+.k-txn__meta--plain { margin-top: 7px; padding-top: 0; border-top: 0; }
+.k-txn__amount { flex: 0 0 auto; min-width: 0; }
+.k-txn__amount .num { display: block; font-size: 14px; font-weight: 700; white-space: nowrap; }
+.k-txn__amount small { display: block; font-size: 11.5px; color: var(--fg-3); margin-top: 2px; white-space: nowrap; }
+.k-txn__note {
+  flex: 0 1 auto; min-width: 0;
+  text-align: right;
+  font-size: 11.5px; color: var(--fg-3);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.k-txn__bar { display: flex; align-items: center; gap: 10px; min-width: 0; margin-top: 11px; }
+.k-txn__bar .k-progress { flex: 1 1 auto; min-width: 36px; }
+.k-txn__bar > .k-txn__note,
+.k-txn__bar > .num { flex: 0 0 auto; font-size: 11px; color: var(--fg-3); white-space: nowrap; }
+
+/* Figure grid — auto-fit means a 3-up row becomes 2-up on a narrow phone
+   instead of squeezing each value into an unreadable sliver. */
+.k-figs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(108px, 1fr));
+  gap: 10px 14px;
+  margin-top: 11px; padding-top: 11px;
+  border-top: 1px solid var(--line-soft);
+}
+.k-figs--plain { margin-top: 7px; padding-top: 0; border-top: 0; }
+.k-fig { min-width: 0; }
+.k-fig--end { text-align: right; }
+.k-fig__label {
+  display: block; margin-bottom: 3px;
+  font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--fg-3);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.k-fig__value {
+  display: block;
+  font-size: 13.5px; font-weight: 700;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 
 /* Market news rows (Home) — title + one-line summary + source · time */
 .k-news { padding: 2px 6px 6px; }

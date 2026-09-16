@@ -17,6 +17,7 @@ import { useAuth } from '@/components/context/AuthContext';
 import { useDeposits } from '@/lib/hooks/useDeposits';
 import { useTickers } from '@/lib/hooks/useTickers';
 import WireTransferPanel from '@/components/wire/WireTransferPanel';
+import TransactionSubmittedModal, { type SubmittedDetail } from '@/components/TransactionSubmittedModal';
 import { addFundsSchema } from '@/lib/validation';
 import { WALLETS } from '@/lib/config';
 import { formatWithCommas, unformat } from '@/lib/utils/formatAmount';
@@ -37,6 +38,9 @@ import { AiOutlineLoading3Quarters } from 'react-icons/ai';
 const fmt = (n: number, d = 2) =>
   n.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
 
+/** "bc1qscrfp…jtcun" — keeps a full deposit address readable in the modal. */
+const shortAddress = (a: string) => (a.length > 22 ? `${a.slice(0, 10)}…${a.slice(-8)}` : a);
+
 export default function AddFundsPage() {
   const { user, isLoading: authLoading, logout } = useAuth();
   const router = useRouter();
@@ -53,6 +57,14 @@ export default function AddFundsPage() {
   const [alertType, setAlertType] = useState<'success' | 'error' | 'warning'>('success');
   const [error, setError] = useState<string | null>(null);
   const [addressCopied, setAddressCopied] = useState(false);
+  /* Set once the deposit is accepted — renders the acknowledgement modal,
+     whose Okay button returns the user to the dashboard. */
+  const [submitted, setSubmitted] = useState<{
+    amount: number;
+    currency: string;
+    address: string;
+    reference?: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) router.push('/screens/auth/Signin');
@@ -106,7 +118,15 @@ export default function AddFundsPage() {
       // and returns a result object — it does not throw on a failed request.
       const result = await submitDeposit(numericAmount, selected.name, selected.address);
       if (result.success) {
-        showAlert('Deposit submitted. We will notify you once it confirms on-chain.', 'success');
+        // Explicit acknowledgement instead of a self-dismissing toast; Okay
+        // sends the user back to the dashboard.
+        setAlertMsg(null);
+        setSubmitted({
+          amount: numericAmount,
+          currency: selected.name,
+          address: selected.address,
+          reference: (result as { transactionRef?: string }).transactionRef,
+        });
         setAmount('');
       } else {
         setError(result.message);
@@ -321,7 +341,9 @@ export default function AddFundsPage() {
                     value={amount}
                     onChange={(e) => {
                       const cursor = e.target.selectionStart ?? e.target.value.length;
-                      const { formatted } = formatWithCommas(e.target.value, cursor);
+                      // Amount is a USD figure — two decimals (the helper used to
+                      // delete the decimal point, so 12.50 became 1250).
+                      const { formatted } = formatWithCommas(e.target.value, cursor, 2);
                       setAmount(formatted);
                     }}
                     className="w-full bg-[#0B0E11] border rounded px-3 py-2.5 text-sm font-mono"
@@ -498,6 +520,28 @@ export default function AddFundsPage() {
           </div>
         </main>
       </div>
+
+      {/* Submission acknowledgement — Okay returns to the dashboard. */}
+      <TransactionSubmittedModal
+        open={!!submitted}
+        title="Deposit submitted"
+        message="Your deposit notification has been received. We'll credit your balance as soon as the network confirms it."
+        details={
+          (submitted
+            ? ([
+                { label: 'Amount', value: `${fmt(submitted.amount, 8)} ${submitted.currency}`, mono: true },
+                { label: 'Deposit address', value: shortAddress(submitted.address), mono: true },
+                submitted.reference ? { label: 'Reference', value: submitted.reference.slice(0, 18), mono: true } : null,
+                { label: 'Status', value: 'Awaiting confirmations' },
+              ].filter(Boolean) as SubmittedDetail[])
+            : [])
+        }
+        footnote="Deposits usually arrive within 10–30 minutes of the first confirmation."
+        onClose={() => {
+          setSubmitted(null);
+          router.push('/dashboard');
+        }}
+      />
     </div>
   );
 }

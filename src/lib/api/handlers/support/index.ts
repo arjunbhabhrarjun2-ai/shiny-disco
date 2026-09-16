@@ -7,6 +7,7 @@ import * as sendMessage from "./send-message";
 import * as getMessages from "./get-messages";
 import * as getTickets from "./get-tickets";
 import * as image from "./image";
+import * as attachment from "./attachment";
 import * as upload from "./upload";
 
 export const routes: ApiRouteTable = [
@@ -17,5 +18,6 @@ export const routes: ApiRouteTable = [
   { pattern: "get-messages", handlers: { GET: getMessages.GET } },
   { pattern: "get-tickets", handlers: { GET: getTickets.GET } },
   { pattern: "image/:name", handlers: { GET: image.GET } },
+  { pattern: "attachment/:id", handlers: { GET: attachment.GET } },
   { pattern: "upload", handlers: { POST: upload.POST } },
 ];

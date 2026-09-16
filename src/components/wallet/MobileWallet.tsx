@@ -274,18 +274,30 @@ export default function MobileWallet({
             )}
             {assetRows.map((row) => (
               <li key={row.sym}>
-                <button type="button" className="k-row" onClick={() => setSwapOpen(true)} aria-label={`Swap ${row.sym}`}>
-                  <CoinIcon symbol={row.sym} size={40} tint="#D4AF7F" style={{ borderRadius: '50%' }} />
-                  <span className="k-row__main">
-                    <span className="k-row__title">{row.name}</span>
-                    <span className="k-row__sub num">
+                <button
+                  type="button"
+                  className="k-row k-row--stack"
+                  onClick={() => setSwapOpen(true)}
+                  aria-label={`Swap ${row.sym}`}
+                >
+                  {/* Header line: coin · name · value · chevron; the quantity gets
+                      its own full-width line so it is never squeezed against the
+                      value (see mobile-shell.css § 9b). */}
+                  <span className="k-txn">
+                    <CoinIcon symbol={row.sym} size={40} tint="#D4AF7F" style={{ borderRadius: '50%' }} />
+                    <span className="k-txn__main">
+                      <span className="k-row__title">{row.name}</span>
+                    </span>
+                    <span className="k-txn__amount">
+                      <span className="num">{fmtCur(row.value)}</span>
+                    </span>
+                    <Chevron />
+                  </span>
+                  <span className="k-txn__meta k-txn__meta--plain" style={{ paddingLeft: 52 }}>
+                    <span className="k-row__sub num" style={{ marginTop: 0 }}>
                       {qtyFmt(row.available, row.sym)} {row.sym}
                     </span>
                   </span>
-                  <span className="k-row__trail">
-                    <span className="num">{fmtCur(row.value)}</span>
-                  </span>
-                  <Chevron />
                 </button>
               </li>
             ))}
@@ -322,57 +334,30 @@ export default function MobileWallet({
                   onClick={() => router.push('/stake')}
                   style={{ display: 'block', width: '100%', textAlign: 'left' }}
                 >
-                  {/* Header: tier emblem + bond name + maturity */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  {/* Header: tier emblem + bond name (wraps to 2 lines instead of
+                      being cut off at 320–360 px) + maturity */}
+                  <div className="k-txn">
                     <span style={{ flex: '0 0 auto' }}>
                       <Emblem tone={emblemTone(bond.planName, i)} />
                     </span>
-                    <span style={{ flex: 1, minWidth: 0 }}>
-                      <span className="k-row__title" style={{ display: 'block' }}>{bond.name}</span>
-                      <span className="k-row__sub" style={{ display: 'block', whiteSpace: 'normal' }}>
-                        {bond.roiPct.toFixed(0)}% yield · matures in {bond.days} days
+                    <span className="k-txn__main">
+                      <span className="k-txn__title">{bond.name}</span>
+                      <span className="k-row__sub">
+                        {bond.roiPct.toFixed(0)}% yield · {bond.days}-day term
                       </span>
                     </span>
                     <Chevron />
                   </div>
 
-                  {/* Figures on their own row so nothing is squeezed */}
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-                      gap: 10,
-                      marginTop: 13,
-                      paddingTop: 12,
-                      borderTop: '1px solid var(--line-soft)',
-                    }}
-                  >
-                    <div style={{ minWidth: 0 }}>
-                      <span
-                        style={{
-                          display: 'block', fontSize: 9.5, fontWeight: 700, letterSpacing: '0.1em',
-                          textTransform: 'uppercase', color: 'var(--fg-3)', marginBottom: 3,
-                        }}
-                      >
-                        Principal
-                      </span>
-                      <span className="num" style={{ display: 'block', fontSize: 13.5, fontWeight: 700, whiteSpace: 'nowrap' }}>
-                        {fmtCur(bond.principal)}
-                      </span>
+                  {/* Figures — auto-fit grid, full width, so nothing is squeezed */}
+                  <div className="k-figs">
+                    <div className="k-fig">
+                      <span className="k-fig__label">Principal</span>
+                      <span className="k-fig__value num">{fmtCur(bond.principal)}</span>
                     </div>
-                    <div style={{ minWidth: 0, textAlign: 'right' }}>
-                      <span
-                        style={{
-                          display: 'block', fontSize: 9.5, fontWeight: 700, letterSpacing: '0.1em',
-                          textTransform: 'uppercase', color: 'var(--fg-3)', marginBottom: 3,
-                        }}
-                      >
-                        At maturity
-                      </span>
-                      <span
-                        className="num"
-                        style={{ display: 'block', fontSize: 13.5, fontWeight: 700, color: 'var(--up)', whiteSpace: 'nowrap' }}
-                      >
+                    <div className="k-fig k-fig--end">
+                      <span className="k-fig__label">At maturity</span>
+                      <span className="k-fig__value num" style={{ color: 'var(--up)' }}>
                         {fmtCur(bond.maturityValue)}
                       </span>
                     </div>
@@ -393,9 +378,9 @@ export default function MobileWallet({
               <path d="M4 6h4" />
             </svg>
           </span>
-          <span className="k-row__main">
-            <span className="k-row__title" style={{ whiteSpace: 'normal' }}>Deposit &amp; withdrawal history</span>
-            <span className="k-row__sub" style={{ whiteSpace: 'normal' }}>Unified transaction ledger</span>
+          <span className="k-txn__main">
+            <span className="k-row__title">Deposit &amp; withdrawal history</span>
+            <span className="k-row__sub">Unified transaction ledger</span>
           </span>
           <Chevron />
         </button>

@@ -246,24 +246,28 @@ export default function StakePage() {
               <h3 className="text-[11px] font-black uppercase tracking-[0.4em]" style={{ color: '#D4AF7F' }}>Active Staking Tiers</h3>
               <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, rgba(212,175,127,0.2), transparent)' }} />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Three across only when there is room: at 768–1279 px (with the
+                sidebar out) a third column leaves the card header ~160 px for an
+                icon, a name and the APY block, which is how the APY ended up on
+                top of the asset name. Two columns from lg, three from xl. */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
               {protocols.map((p) => (
                 <div key={p.name} onClick={openAtrium} className="luxe-glass rounded-2xl overflow-hidden group hover:border-white/20 transition-all duration-500 cursor-pointer">
                   <div className="h-1.5 opacity-70" style={{ background: p.topBar }} />
                   <div className="p-6 sm:p-7">
-                    <div className="flex justify-between items-start mb-7">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-xl flex items-center justify-center group-hover:border-[#D4AF7F] transition-colors" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#F5F1EA' }}>
+                    <div className="flex justify-between items-start gap-4 mb-7">
+                      <div className="flex items-center gap-4 min-w-0">
+                        <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:border-[#D4AF7F] transition-colors" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#F5F1EA' }}>
                           {p.icon}
                         </div>
-                        <div>
+                        <div className="min-w-0">
                           <h4 className="text-lg font-bold tracking-tight">{p.name}</h4>
                           <p className="text-[10px] uppercase font-mono tracking-wider" style={{ color: 'rgba(245,241,234,0.5)' }}>{p.sub}</p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <span className="text-2xl font-black" style={{ background: 'linear-gradient(135deg, #00FFA3 0%, #06B6D4 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{p.apy}</span>
-                        <p className="text-[9px] uppercase font-mono" style={{ color: 'rgba(245,241,234,0.5)' }}>{p.apyLabel}</p>
+                      <div className="text-right flex-shrink-0">
+                        <span className="text-2xl font-black whitespace-nowrap" style={{ background: 'linear-gradient(135deg, #00FFA3 0%, #06B6D4 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{p.apy}</span>
+                        <p className="text-[9px] uppercase font-mono whitespace-nowrap" style={{ color: 'rgba(245,241,234,0.5)' }}>{p.apyLabel}</p>
                       </div>
                     </div>
                     <div className="space-y-3.5 mb-7 text-[11px]">
@@ -291,7 +295,7 @@ export default function StakePage() {
               <h3 className="text-[11px] font-black uppercase tracking-[0.4em]" style={{ color: '#D4AF7F' }}>Kandella Yield Bonds</h3>
               <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, rgba(212,175,127,0.2), transparent)' }} />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
               {bonds.map((b) => {
                 const prog = bondProgress(b.plan, b.roiPct);
                 return (
@@ -300,18 +304,18 @@ export default function StakePage() {
                   className={`luxe-glass${b.active ? '-border' : ''} rounded-2xl p-6 sm:p-7 hover:border-white/20 transition-all`}
                   style={b.active ? { border: '1px solid rgba(99,102,241,0.6)' } : undefined}
                 >
-                  <div className="flex justify-between items-start mb-2">
-                    <div className="flex items-center gap-3">
+                  <div className="flex justify-between items-start gap-3 mb-2">
+                    <div className="flex items-center gap-3 min-w-0">
                       <div
                         className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
                         style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#D4AF7F' }}
                       >
                         {b.icon}
                       </div>
-                      <h4 className="text-lg font-bold tracking-tight">{b.tier}</h4>
+                      <h4 className="text-lg font-bold tracking-tight min-w-0">{b.tier}</h4>
                     </div>
                     <span
-                      className="text-[9px] font-extrabold uppercase tracking-widest px-2 py-1 rounded"
+                      className="text-[9px] font-extrabold uppercase tracking-widest px-2 py-1 rounded flex-shrink-0 whitespace-nowrap"
                       style={b.active ? { background: 'rgba(99,102,241,0.18)', color: '#A1C9FF' } : { background: 'rgba(255,255,255,0.05)', color: 'rgba(245,241,234,0.5)' }}
                     >
                       {b.tierColor}
@@ -319,9 +323,9 @@ export default function StakePage() {
                   </div>
                   <p className="text-xs mb-5" style={{ color: 'rgba(245,241,234,0.6)' }}>{b.sub}</p>
                   <div className="mb-5">
-                    <div className="flex justify-between text-[10px] uppercase mb-2" style={{ color: 'rgba(245,241,234,0.5)' }}>
-                      <span className="font-bold tracking-widest">Cycle Maturity</span>
-                      <span className="font-mono font-bold" style={{ color: prog > 0 ? '#F5F1EA' : 'rgba(245,241,234,0.4)' }}>
+                    <div className="flex justify-between items-baseline gap-3 text-[10px] uppercase mb-2" style={{ color: 'rgba(245,241,234,0.5)' }}>
+                      <span className="font-bold tracking-widest truncate">Cycle Maturity</span>
+                      <span className="font-mono font-bold whitespace-nowrap flex-shrink-0" style={{ color: prog > 0 ? '#F5F1EA' : 'rgba(245,241,234,0.4)' }}>
                         {prog > 0 ? `${prog}% COMPLETE` : 'INACTIVE'}
                       </span>
                     </div>
